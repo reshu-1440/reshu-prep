@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>180-Day SDE + AI/ML Internship Preparation Command Center</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+<div id="app-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="app-sidebar">
+    <div class="sidebar-header">
+      <div class="brand-title-wrap">
+        <div class="brand-icon-box">⚡</div>
+        <div>
+          <div class="brand-name">PrepCommand 180</div>
+          <div class="brand-sub">SDE + AI/ML Internship OS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Profile Card in Sidebar -->
+    <div class="sidebar-profile-card">
+      <div class="profile-meta-top">
+        <span class="profile-name">Student Candidate</span>
+        <span class="profile-badge-cgpa">8.07 CGPA</span>
+      </div>
+      <div class="profile-details">
+        <div>B.Tech AI & ML • 5th Semester</div>
+        <div>Tier 2/3 College • Class of 2028</div>
+        <div style="margin-top: 4px; color: var(--accent-cyan);">Zero Backlogs • C++ & Python Primary</div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Command Center</div>
+      <button class="nav-item active" data-view="dashboard">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+        Overview Dashboard
+      </button>
+      <button class="nav-item" data-view="today">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        Today's Action Studio
+        <span class="badge-pill" style="background: var(--accent-primary); color: #fff;">Day 1</span>
+      </button>
+
+      <div class="nav-section-label">Curriculum & Tracks</div>
+      <button class="nav-item" data-view="roadmap">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        26-Week Roadmap
+        <span class="badge-pill">26 Wks</span>
+      </button>
+      <button class="nav-item" data-view="dsa">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        DSA Tracker & Revisions
+        <span class="badge-pill alert" id="nav-badge-dsa-rev" style="display: none;">0</span>
+      </button>
+      <button class="nav-item" data-view="sde">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+        SDE & Placement Portal
+      </button>
+      <button class="nav-item" data-view="aiml">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+        AI/ML Specialization
+        <span class="badge-pill">18 Mods</span>
+      </button>
+
+      <div class="nav-section-label">Engineering Discipline</div>
+      <button class="nav-item" data-view="projects">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+        Project Audit & Capstones
+        <span class="badge-pill">3 Core</span>
+      </button>
+      <button class="nav-item" data-view="ailog">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        AI Dependency Log
+      </button>
+      <button class="nav-item" data-view="communication">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+        English Communication
+        <span class="badge-pill">30m/day</span>
+      </button>
+
+      <div class="nav-section-label">Career & Evaluation</div>
+      <button class="nav-item" data-view="applications">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        Internship CRM Tracker
+      </button>
+      <button class="nav-item" data-view="assessments">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Weekly Assessments
+        <span class="badge-pill">100 Pts</span>
+      </button>
+      <button class="nav-item" data-view="resources">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        Resources Library
+      </button>
+      <button class="nav-item" data-view="settings">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        Settings & Backup
+      </button>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <span>● Offline Ready (Local)</span>
+      <span>v1.0.0</span>
+    </div>
+  </aside>
+
+  <!-- Main Workspace Area -->
+  <main class="app-main">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle menu">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+        <div class="date-badge">
+          <span>📅 Tue, 17 Nov 2026</span>
+          <span class="week-pill" id="header-week-pill">Week 1 • Day 1</span>
+        </div>
+        <div class="header-search-box">
+          <span class="header-search-icon">🔍</span>
+          <input type="text" id="global-search-input" placeholder="Search tasks, DSA, AI/ML, topics..." />
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Examination Mode Toggle -->
+        <button class="exam-mode-btn" id="header-exam-btn" title="Toggle University Examination Mode">
+          <span class="exam-status-dot"></span>
+          <span class="exam-btn-text">EXAM MODE: OFF</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </button>
+
+        <!-- Overall Progress Quick Pill -->
+        <div class="header-progress-box">
+          <span style="font-weight: 700; color: var(--accent-cyan);" id="header-progress-pct">0%</span>
+          <div class="progress-micro-bar">
+            <div class="progress-micro-fill" id="header-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Examination Mode Active Banner -->
+    <div class="exam-banner-alert" id="exam-mode-banner" style="display: none;">
+      <div class="exam-banner-text">
+        <span>⚠️</span>
+        <span>
+          <strong>EXAMINATION MAINTENANCE MODE ACTIVE:</strong> College university examinations prioritized. Daily tasks reduced to 1.5 hours maintenance level (1 core DSA problem + 15m English + 1 spaced revision). Heavy project milestones and application quotas are paused.
+        </span>
+      </div>
+      <button class="btn-sm-action" onclick="App.navigate('settings')">Configure Exam Dates</button>
+    </div>
+
+    <!-- Dynamic View Body -->
+    <div class="view-container" id="main-view-container">
+      <!-- Views will be dynamically injected here -->
+    </div>
+  </main>
+</div>
+
+<!-- ==========================================================================
+     MODALS
+     ========================================================================== -->
+
+<!-- 1. Task Edit & Definition of Done Verification Modal -->
+<div class="modal-overlay" id="task-edit-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Task Verification & Reflection</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-task-id" />
+      <div style="margin-bottom: 14px;">
+        <h4 id="edit-task-title" style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;"></h4>
+        <span style="font-size: 11px; color: var(--text-muted);">Record independent proof of understanding and personal reflection.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Personal Reflection & Notes</label>
+        <textarea class="form-textarea" id="edit-task-notes" placeholder="What was the trickiest part? What edge case or invariant did you master?"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Evidence / GitHub Commit URL</label>
+        <input type="url" class="form-input" id="edit-task-github" placeholder="https://github.com/username/prep-repo/commit/..." style="width: 100%;" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Confidence Score (1-5)</label>
+          <select class="form-select" id="edit-task-confidence" style="width: 100%;">
+            <option value="1">1 - Struggled / Needs Rereading</option>
+            <option value="2">2 - Understood with Difficulties</option>
+            <option value="3">3 - Solid Conceptual Grasp</option>
+            <option value="4" selected>4 - Very Confident</option>
+            <option value="5">5 - Can Teach to an Interviewer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Actual Time Spent (Minutes)</label>
+          <input type="number" class="form-input" id="edit-task-timespent" value="60" style="width: 100%;" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveTaskEditFromModal()">Save Reflection</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. DSA Problem Status & Spaced Revision Modal -->
+<div class="modal-overlay" id="dsa-edit-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Update DSA Problem Status</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-dsa-id" />
+      <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: baseline;">
+        <h4 id="edit-dsa-name" style="font-size: 14px; font-weight: 700; color: var(--text-primary);"></h4>
+        <a id="edit-dsa-url" href="#" target="_blank" rel="noopener noreferrer" class="btn-sm-action">Open on Platform ↗</a>
+      </div>
+
+      <!-- Verification Checkboxes -->
+      <div style="background-color: var(--bg-card); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="edit-dsa-independent" />
+          <span><strong>Solved Independently:</strong> Implemented without copying code or looking up the exact answer.</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="edit-dsa-bruteforce" />
+          <span><strong>Brute Force Implemented:</strong> Understood initial sub-optimal approach and why it exceeds limits.</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="edit-dsa-optimized" />
+          <span><strong>Optimized Approach Implemented:</strong> Successfully derived the optimal Big-O time and space approach.</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="edit-dsa-explained" />
+          <span><strong>Explanation Completed:</strong> Can verbally explain the logic aloud without reading notes.</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; color: var(--accent-warning);">
+          <input type="checkbox" id="edit-dsa-hintused" />
+          <span><strong>Hint Used:</strong> Needed algorithmic hints to complete the solution.</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; color: var(--accent-danger);">
+          <input type="checkbox" id="edit-dsa-aiused" />
+          <span><strong>AI Assisted:</strong> AI tools were consulted during the coding process.</span>
+        </label>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Time Complexity</label>
+          <input type="text" class="form-input" id="edit-dsa-timecomp" placeholder="e.g. O(N) or O(N log N)" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Space Complexity</label>
+          <input type="text" class="form-input" id="edit-dsa-spacecomp" placeholder="e.g. O(1) or O(N)" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confidence Score (1-5)</label>
+        <select class="form-select" id="edit-dsa-confidence" style="width: 100%;">
+          <option value="1">1 - Shaky / Needs Quick Revision</option>
+          <option value="2">2 - Solved but Took Too Long</option>
+          <option value="3">3 - Solid Understanding</option>
+          <option value="4">4 - High Confidence</option>
+          <option value="5">5 - Mastered (Can Reproduce in 15 mins)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Personal Notes & Pattern Invariants</label>
+        <textarea class="form-textarea" id="edit-dsa-notes" placeholder="Key edge cases, loop invariants, pointer initialization..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="App.saveDsaEditFromModal(true)">
+        🔄 Log Spaced Revision (Next Interval)
+      </button>
+      <button class="btn-primary" onclick="App.saveDsaEditFromModal(false)">
+        Save Status
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Add Custom DSA Problem Modal -->
+<div class="modal-overlay" id="dsa-add-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Add Custom DSA Problem</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Problem Name *</label>
+        <input type="text" class="form-input" id="add-dsa-name" placeholder="e.g. Spiral Matrix" style="width: 100%;" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Platform</label>
+          <select class="form-select" id="add-dsa-platform" style="width: 100%;">
+            <option value="LeetCode">LeetCode</option>
+            <option value="GeeksforGeeks">GeeksforGeeks</option>
+            <option value="Codeforces">Codeforces</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Topic</label>
+          <select class="form-select" id="add-dsa-topic" style="width: 100%;">
+            <option value="Arrays & Hashing">Arrays & Hashing</option>
+            <option value="Strings">Strings</option>
+            <option value="Two Pointers">Two Pointers</option>
+            <option value="Sliding Window">Sliding Window</option>
+            <option value="Binary Search">Binary Search</option>
+            <option value="Linked Lists">Linked Lists</option>
+            <option value="Stacks & Queues">Stacks & Queues</option>
+            <option value="Trees">Trees</option>
+            <option value="Binary Search Trees">Binary Search Trees</option>
+            <option value="Heaps & Priority Queues">Heaps & Priority Queues</option>
+            <option value="Graphs">Graphs</option>
+            <option value="Dynamic Programming">Dynamic Programming</option>
+            <option value="Greedy">Greedy</option>
+            <option value="Intervals">Intervals</option>
+            <option value="Backtracking">Backtracking</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Difficulty</label>
+          <select class="form-select" id="add-dsa-diff" style="width: 100%;">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Problem URL</label>
+          <input type="url" class="form-input" id="add-dsa-url" placeholder="https://leetcode.com/problems/..." style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Key Algorithmic Pattern</label>
+        <input type="text" class="form-input" id="add-dsa-pattern" placeholder="e.g. Monotonic Stack / Kadane / BFS" style="width: 100%;" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Target Time Complexity</label>
+          <input type="text" class="form-input" id="add-dsa-timecomp" placeholder="e.g. O(N)" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Space Complexity</label>
+          <input type="text" class="form-input" id="add-dsa-spacecomp" placeholder="e.g. O(1)" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="add-dsa-notes" placeholder="Initial thoughts, boundary cases..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveNewDsaProblem()">Add Problem</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Add AI Dependency Log Modal -->
+<div class="modal-overlay" id="ai-add-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Log AI Assistance Event</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Task Attempted *</label>
+        <input type="text" class="form-input" id="add-ailog-task" placeholder="e.g. Coin Change DP recurrence relation" style="width: 100%;" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Independent Effort Duration (Minutes)</label>
+          <input type="number" class="form-input" id="add-ailog-duration" value="30" min="0" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">AI Assistance Level</label>
+          <select class="form-select" id="add-ailog-level" style="width: 100%;">
+            <option value="Conceptual Explanation">Conceptual Explanation (Permitted)</option>
+            <option value="Syntax / Documentation Hint">Syntax / Documentation Hint (Permitted)</option>
+            <option value="Bug Isolation Hint">Bug Isolation / Logic Clue (Permitted)</option>
+            <option value="Architecture Discussion">Architecture Discussion (Permitted)</option>
+            <option value="Full Code Generation (Flagged)">Full Code Generation (Flagged / Anti-Pattern)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">What Did You Learn from the Explanation? *</label>
+        <textarea class="form-textarea" id="add-ailog-learned" placeholder="Summarize the core takeaway in your own words..."></textarea>
+      </div>
+
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 10px;">
+        <input type="checkbox" id="add-ailog-repeat" checked />
+        <span><strong>Can you repeat this implementation independently right now without AI?</strong></span>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveNewAiLog()">Save AI Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Add Speaking Practice Log Modal -->
+<div class="modal-overlay" id="speaking-add-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Log English Speaking Session</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Weekly Theme</label>
+        <input type="text" class="form-input" id="add-spk-theme" value="Daily Communication Routine" style="width: 100%;" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Topic Practiced *</label>
+        <input type="text" class="form-input" id="add-spk-topic" placeholder="e.g. Explaining Hash Map Collisions & Chaining" style="width: 100%;" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label class="form-label">Duration (Mins)</label>
+          <input type="number" class="form-input" id="add-spk-duration" value="15" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confidence (1-5)</label>
+          <select class="form-select" id="add-spk-conf" style="width: 100%;">
+            <option value="1">1 - Hesitant</option>
+            <option value="2">2 - Fair</option>
+            <option value="3" selected>3 - Confident</option>
+            <option value="4">4 - High</option>
+            <option value="5">5 - Fluently Articulate</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fluency (1-5)</label>
+          <select class="form-select" id="add-spk-fluency" style="width: 100%;">
+            <option value="1">1 - Pauses</option>
+            <option value="2">2 - Moderate</option>
+            <option value="3" selected>3 - Good Pace</option>
+            <option value="4">4 - Smooth</option>
+            <option value="5">5 - Natural Flow</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Grammar / Filler Words Noticed</label>
+        <input type="text" class="form-input" id="add-spk-grammar" placeholder="e.g. Repeated 'actually' and 'like'; past tense confusion" style="width: 100%;" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">New Vocabulary / Phrases Learned</label>
+        <input type="text" class="form-input" id="add-spk-vocab" placeholder="e.g. Invariant, Idempotent, Bottleneck, Trade-off" style="width: 100%;" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Self-Feedback & Next Improvement Action</label>
+        <textarea class="form-textarea" id="add-spk-notes" placeholder="What to improve tomorrow..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveNewSpeakingLog()">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Add Internship Application Modal -->
+<div class="modal-overlay" id="application-add-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Track New Internship Opportunity</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Company Name *</label>
+          <input type="text" class="form-input" id="add-app-company" placeholder="e.g. Razorpay" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role Title *</label>
+          <input type="text" class="form-input" id="add-app-role" placeholder="e.g. SDE Intern" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="add-app-category" style="width: 100%;">
+            <option value="SDE">SDE</option>
+            <option value="AI/ML">AI/ML</option>
+            <option value="Python">Python Dev</option>
+            <option value="Full-Stack">Full-Stack</option>
+            <option value="Data">Data Science</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Work Type</label>
+          <select class="form-select" id="add-app-worktype" style="width: 100%;">
+            <option value="Hybrid">Hybrid</option>
+            <option value="Remote">Remote</option>
+            <option value="On-site">On-site</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="add-app-status" style="width: 100%;">
+            <option value="Interested">Interested</option>
+            <option value="Ready to Apply">Ready to Apply</option>
+            <option value="Applied" selected>Applied</option>
+            <option value="Assessment Pending">Assessment Pending</option>
+            <option value="Interview Scheduled">Interview Scheduled</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input type="text" class="form-input" id="add-app-location" placeholder="e.g. Bengaluru / Hyderabad" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monthly Stipend</label>
+          <input type="text" class="form-input" id="add-app-stipend" placeholder="e.g. ₹40,000 / month" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Application / Job URL</label>
+        <input type="url" class="form-input" id="add-app-url" placeholder="https://..." style="width: 100%;" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Eligibility Criteria & Skills</label>
+        <input type="text" class="form-input" id="add-app-eligibility" placeholder="e.g. 2028 batch, 7.5+ CGPA, C++, SQL" style="width: 100%;" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Follow-up Date</label>
+        <input type="date" class="form-input" id="add-app-followup" style="width: 100%;" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveNewApplication()">Save Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Edit Internship Application Modal -->
+<div class="modal-overlay" id="application-edit-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Update Application Progress</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-app-id" />
+      <h4 id="edit-app-company-title" style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;"></h4>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Application Status</label>
+          <select class="form-select" id="edit-app-status" style="width: 100%;">
+            <option value="Interested">Interested / Research</option>
+            <option value="Eligibility Checking">Eligibility Checking</option>
+            <option value="Ready to Apply">Ready to Apply</option>
+            <option value="Applied">Applied</option>
+            <option value="Assessment Pending">Assessment Pending</option>
+            <option value="Interview Scheduled">Interview Scheduled</option>
+            <option value="Selected">Selected</option>
+            <option value="Offer Received">Offer Received</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Withdrawn">Withdrawn</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assessment / OA Date</label>
+          <input type="date" class="form-input" id="edit-app-assessment-date" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Interview Rounds & Feedback</label>
+        <textarea class="form-textarea" id="edit-app-interview-notes" placeholder="Rounds details, questions asked, DSA topics covered..."></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Next Follow-Up Date</label>
+          <input type="date" class="form-input" id="edit-app-followup-date" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Outcome Summary</label>
+          <input type="text" class="form-input" id="edit-app-outcome-notes" placeholder="e.g. Cleared OA, Round 2 next week" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Lessons Learned / Post-Mortem</label>
+        <textarea class="form-textarea" id="edit-app-lessons" placeholder="What technical or communication areas could be improved?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveEditApplication()">Save CRM Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Weekly Assessment 100-Point Grading Modal -->
+<div class="modal-overlay" id="assessment-grade-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Weekly Evaluation Grading</h3>
+      <button class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="assess-week-num" />
+      <h4 id="assess-week-title" style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;"></h4>
+      <div style="padding: 10px; background: var(--bg-card); border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 14px;">
+        <strong style="color: var(--accent-cyan);">Assessment Challenge:</strong>
+        <span id="assess-prompt-display" style="color: var(--text-secondary); display: block; margin-top: 2px;"></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+        <div class="form-group">
+          <label class="form-label">1. DSA & Problem Solving (Max 25 pts)</label>
+          <input type="number" class="form-input" id="score-dsa" value="20" min="0" max="25" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">2. Software Development (Max 20 pts)</label>
+          <input type="number" class="form-input" id="score-dev" value="16" min="0" max="20" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">3. AI/ML Competence (Max 20 pts)</label>
+          <input type="number" class="form-input" id="score-aiml" value="16" min="0" max="20" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">4. CS Fundamentals (Max 15 pts)</label>
+          <input type="number" class="form-input" id="score-cs" value="12" min="0" max="15" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">5. English Communication (Max 10 pts)</label>
+          <input type="number" class="form-input" id="score-comm" value="8" min="0" max="10" style="width: 100%;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">6. Consistency & Discipline (Max 10 pts)</label>
+          <input type="number" class="form-input" id="score-cons" value="8" min="0" max="10" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Evaluator / Self-Critique Feedback</label>
+        <textarea class="form-textarea" id="assess-feedback" placeholder="Demonstrated strong grasp of invariants, but needs faster independent coding without editor hints. Pass threshold is 70/100."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" onclick="App.saveWeeklyAssessmentFromModal()">Submit Grade</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- JavaScript Data & Logic Dependencies -->
+<script src="js/data/resources-data.js"></script>
+<script src="js/data/communication-data.js"></script>
+<script src="js/data/projects-data.js"></script>
+<script src="js/data/sde-data.js"></script>
+<script src="js/data/aiml-data.js"></script>
+<script src="js/data/dsa-data.js"></script>
+<script src="js/data/roadmap-data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
