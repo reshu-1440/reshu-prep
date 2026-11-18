@@ -276,12 +276,12 @@ const App = {
         </div>
 
         <div class="kpi-card">
-          <div class="kpi-label">AI Independence Ratio</div>
+          <div class="kpi-label">Capstone Projects Audit</div>
           <div class="kpi-value-row">
-            <span class="kpi-value" style="color: var(--accent-purple);">${stats.aiIndependenceRatio}%</span>
-            <span class="badge badge-aiml">No AI Boilerplate</span>
+            <span class="kpi-value" style="color: var(--accent-primary);">3</span>
+            <span class="badge badge-project">Production Portfolio</span>
           </div>
-          <div class="kpi-subtext">Verified independent coding & debugging</div>
+          <div class="kpi-subtext">Enterprise SDE • ML Microservice • Systems Store</div>
         </div>
 
         <div class="kpi-card">
@@ -523,21 +523,21 @@ const App = {
             </div>
           </div>
 
-          <!-- AI Usage Protocol Quick Reminder -->
+          <!-- Daily Engineering Practice Protocol -->
           <div class="card-panel">
             <div class="card-panel-header">
               <span class="card-panel-title">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                AI Dependency Rule of Today
+                Deliberate Practice Protocol
               </span>
-              <button class="btn-sm-action" onclick="App.navigate('ailog')">AI Log</button>
+              <button class="btn-sm-action" onclick="App.navigate('ailog')">Activity Log</button>
             </div>
             <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-              Before invoking AI assistance on any task, you must spend at least <strong>25 minutes</strong> attempting independent implementation, consulting official docs (cppreference/MDN), and tracing memory pointers.
+              Solve problems from first principles. Always benchmark brute force before optimizing, verify edge cases, and trace memory layout in your local IDE.
             </p>
             <div style="margin-top: 10px;">
               <button class="btn-secondary" style="width: 100%; justify-content: center;" onclick="App.openAddAiLogModal()">
-                + Record Today's AI Assistance
+                + Log Implementation Notes
               </button>
             </div>
           </div>
@@ -2186,14 +2186,14 @@ const App = {
 
       <div class="dashboard-grid-2col">
         <div>
-          <!-- Student Profile Card -->
+          <!-- Candidate Engineering Profile -->
           <div class="card-panel">
-            <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 14px; color: var(--accent-cyan);">Student Engineering Profile</h2>
+            <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 14px; color: var(--accent-primary);">Candidate Engineering Profile</h2>
             <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
-              <div><strong>Degree:</strong> ${prof.degree} in ${prof.specialization} (${prof.semester})</div>
-              <div><strong>College:</strong> ${prof.college} • <strong>Graduation:</strong> ${prof.expectedGraduation}</div>
-              <div><strong>Current CGPA:</strong> <span style="color: var(--accent-success); font-weight: 700;">${prof.cgpa}</span> (Active Backlogs: ${prof.backlogs})</div>
-              <div><strong>Primary Languages:</strong> C++ (DSA), Python (AI/ML), JavaScript (Full-Stack)</div>
+              <div><strong>Program:</strong> ${prof.degree} in ${prof.specialization} (${prof.semester})</div>
+              <div><strong>Institution:</strong> ${prof.college} • <strong>Graduation:</strong> ${prof.expectedGraduation}</div>
+              <div><strong>Academic Standing:</strong> Cumulative CGPA <span style="color: var(--accent-success); font-weight: 700;">${prof.cgpa}</span></div>
+              <div><strong>Core Engineering Stack:</strong> C++ (DSA), Python (AI/ML), JavaScript (Full-Stack), SQL</div>
               <div><strong>Daily Study Targets:</strong> Mon–Fri: 3.5 hrs/day • Sat–Sun: 6.5 hrs/day (~26 hrs/wk)</div>
             </div>
           </div>

@@ -3,7 +3,7 @@
  * Handles persistence, spaced repetition algorithms, export/import validation, and exam mode logic.
  */
 
-const STORAGE_KEY = "INTERNSHIP_PREP_DASHBOARD_V1";
+const STORAGE_KEY = "INTERNSHIP_PREP_DASHBOARD_V2";
 
 const StorageManager = {
   state: null,
@@ -36,12 +36,12 @@ const StorageManager = {
       createdAt: new Date().toISOString(),
       lastActiveDate: "2026-11-17",
       studentProfile: {
-        name: "Student Candidate",
+        name: "Engineer Candidate",
         degree: "B.Tech",
         specialization: "Artificial Intelligence and Machine Learning",
         semester: "5th Semester",
         expectedGraduation: 2028,
-        college: "Tier 2/3 Engineering College",
+        college: "Engineering Institute",
         cgpa: 8.07,
         backlogs: 0,
         primaryLanguages: {
