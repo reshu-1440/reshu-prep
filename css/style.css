@@ -998,6 +998,15 @@ input, select, textarea {
   line-height: 1.6;
 }
 
+.task-details-collapsible summary::-webkit-details-marker { display: none; }
+.task-details-collapsible[open] .details-toggle-icon { transform: rotate(90deg); }
+.details-toggle-icon {
+  display: inline-block;
+  font-size: 9px;
+  transition: transform 0.2s ease;
+  color: var(--accent-primary);
+}
+
 .task-dod-box {
   margin-top: 10px;
   padding: 10px 14px;

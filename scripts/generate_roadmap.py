@@ -5,6 +5,20 @@ with actionable tasks, definition of done, learning resources, rubrics, and comm
 
 import json
 import datetime
+import os
+import sys
+
+# Ensure local scripts dir in sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+try:
+    from generate_base_data import dsa_problems
+except Exception:
+    dsa_problems = []
+
+try:
+    from topic_content import TOPIC_CONTENT
+except Exception:
+    TOPIC_CONTENT = {}
 
 start_date = datetime.date(2026, 11, 17)
 
@@ -706,7 +720,73 @@ for bp in week_blueprints:
         
         # 3-4 structured tasks per day
         tasks = []
-        
+
+        # Resolve Intelligent Task 1 Resource (DSA Problem Mapping)
+        matched_dsa = None
+        for p in dsa_problems:
+            if p.get("dateAssigned") == day_date_str:
+                matched_dsa = p
+                break
+        if not matched_dsa:
+            for p in dsa_problems:
+                if p.get("weekAssigned") == w_num and (focus_track == "dsa" or p.get("topic", "").lower() in focus_topic.lower()):
+                    matched_dsa = p
+                    break
+
+        if matched_dsa:
+            task1_res_title = f"LeetCode: {matched_dsa['name']} ({matched_dsa['difficulty']})"
+            task1_res_url = matched_dsa['url']
+        elif "Binary Search" in focus_title or "Binary Search" in focus_topic:
+            task1_res_title = "LeetCode: Binary Search Practice"
+            task1_res_url = "https://leetcode.com/studyplan/binary-search/"
+        elif "Tree" in focus_title or "BST" in focus_title:
+            task1_res_title = "LeetCode: Binary Tree Traversal"
+            task1_res_url = "https://leetcode.com/explore/learn/card/data-structures-binary-tree/"
+        elif "Graph" in focus_title:
+            task1_res_title = "LeetCode: Graph Exploration"
+            task1_res_url = "https://leetcode.com/explore/featured/card/graph/"
+        elif "Dynamic Programming" in focus_title or "DP" in focus_title:
+            task1_res_title = "LeetCode: Dynamic Programming"
+            task1_res_url = "https://leetcode.com/explore/featured/card/dynamic-programming/"
+        elif any(k in focus_title.lower() for k in ["c++", "vector", "stl"]):
+            task1_res_title = "cppreference: std::vector & Memory"
+            task1_res_url = "https://en.cppreference.com/w/cpp/container/vector"
+        else:
+            task1_res_title = "DSA Tracker & Curated Problems"
+            task1_res_url = "#dsa"
+
+        # ── Topic-specific content lookup (Intelligent Content Injection) ──────
+        matched_content = None
+        full_topic_str = f"{focus_title} {focus_topic}".lower()
+        for key, item in TOPIC_CONTENT.items():
+            if key.startswith("_"):
+                continue
+            if key.lower() in full_topic_str:
+                matched_content = item
+                break
+
+        if not matched_content:
+            if any(k in full_topic_str for k in ["timed revision", "error log", "dsa revision", "revision", "mastery"]):
+                matched_content = TOPIC_CONTENT.get("_default_revision")
+            elif any(k in full_topic_str for k in ["mock", "simulated", "behavioral", "viva", "interview sim"]):
+                matched_content = TOPIC_CONTENT.get("_default_mock")
+            elif any(k in full_topic_str for k in ["resume", "portfolio", "application", "outreach", "career"]):
+                matched_content = TOPIC_CONTENT.get("_default_career")
+            elif any(k in full_topic_str for k in ["evaluation", "audit", "milestone", "retrospective", "graduation"]):
+                matched_content = TOPIC_CONTENT.get("_default_evaluation")
+            else:
+                matched_content = TOPIC_CONTENT.get("_default_revision")
+
+        # Build Task 1 content
+        t1_why = matched_content["t1_why"] if matched_content else f"Essential for building deep, independent competence in {focus_topic}. Mastering this topic from first principles is critical for SDE and AI/ML internship technical rounds."
+        t1_details = matched_content["t1_details"] if matched_content else f"1. Study the underlying mechanics and edge cases of {focus_title} from first principles.\n2. Attempt the brute-force approach on paper; identify exact bottlenecks.\n3. Derive the optimized approach and verify correctness with 2 examples.\n4. Code and test independently in your local IDE without AI assistance."
+        t1_dod = matched_content["t1_dod"] if matched_content else f"Can independently implement and explain {focus_title} with correct complexity analysis and zero reference materials."
+
+        # Build Task 2 content
+        t2_why = matched_content["t2_why"] if matched_content else "Bridges theoretical problem solving with real-world software engineering and data pipelines required for SDE and AI/ML internships."
+        t2_details = matched_content["t2_details"] if matched_content else "1. Implement hands-on code modules, write unit tests, or run database queries.\n2. Ensure modularity, error handling, and clean code formatting.\n3. Verify locally and push to your personal GitHub repository."
+        t2_dod = matched_content["t2_dod"] if matched_content else "Working code verified locally with clean commits to your personal GitHub repository."
+
         # Task 1: Primary Technical Topic / DSA
         tasks.append({
             "id": f"w{w_num:02d}-d{d_idx+1}-t1",
@@ -714,11 +794,11 @@ for bp in week_blueprints:
             "track": focus_track,
             "priority": "High",
             "estimatedMinutes": 90 if is_weekend else 60,
-            "whyLearn": f"Essential for building deep, independent competence in {focus_topic}. Building deep algorithmic intuition, understanding memory layout, and mastering edge cases from first principles.",
-            "taskDetails": f"1. Study the underlying mechanics, memory layout, and edge cases from first principles.\n2. Attempt the brute force approach on paper, identifying exact time/space bottlenecks.\n3. Derive the optimized approach and verify loop invariants.\n4. Code and test independently in your local IDE.",
-            "definitionOfDone": f"Can independently reproduce the optimized solution, trace memory layout, and justify Big-O time and space complexity with zero reference materials.",
-            "resourceTitle": "Striver's A2Z DSA Sheet / Official Documentation",
-            "resourceUrl": "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/",
+            "whyLearn": t1_why,
+            "taskDetails": t1_details,
+            "definitionOfDone": t1_dod,
+            "resourceTitle": task1_res_title,
+            "resourceUrl": task1_res_url,
             "isCompleted": False,
             "completedAt": None,
             "notes": "",
@@ -728,6 +808,57 @@ for bp in week_blueprints:
             "isExamMaintenance": True if d_idx in [0, 2, 4] else False
         })
         
+        # Resolve Intelligent Task 2 Resource (SDE / AIML / CS Fundamentals)
+        title_lower = (focus_title + " " + focus_topic).lower()
+        if any(k in title_lower for k in ["c++", "vector", "stl", "pointer", "memory", "raii", "valgrind"]):
+            task2_res_title = "cppreference: C++ Standard Library & Containers"
+            task2_res_url = "https://en.cppreference.com/w/cpp"
+        elif any(k in title_lower for k in ["postgres", "postgresql", "sql", "database", "schema", "acid", "index", "b-tree"]):
+            task2_res_title = "PostgreSQL Official Documentation"
+            task2_res_url = "https://www.postgresql.org/docs/current/"
+        elif any(k in title_lower for k in ["git", "github", "commit", "branch", "merge"]):
+            task2_res_title = "Pro Git Official Documentation"
+            task2_res_url = "https://git-scm.com/doc"
+        elif any(k in title_lower for k in ["pytorch", "tensor", "backprop", "cnn", "neural", "grad"]):
+            task2_res_title = "PyTorch Documentation & Tutorials"
+            task2_res_url = "https://pytorch.org/docs/stable/"
+        elif any(k in title_lower for k in ["sklearn", "scikit", "regression", "classification", "random forest", "clustering", "pca"]):
+            task2_res_title = "Scikit-Learn Machine Learning Guide"
+            task2_res_url = "https://scikit-learn.org/stable/user_guide.html"
+        elif any(k in title_lower for k in ["transformer", "hugging face", "bert", "gpt", "rag", "embedding", "llm"]):
+            task2_res_title = "Hugging Face Transformers Docs"
+            task2_res_url = "https://huggingface.co/docs/transformers/index"
+        elif any(k in title_lower for k in ["fastapi", "rest api", "endpoint", "pydantic"]):
+            task2_res_title = "FastAPI Framework Documentation"
+            task2_res_url = "https://fastapi.tiangolo.com/"
+        elif any(k in title_lower for k in ["react", "frontend", "hooks", "jsx", "state"]):
+            task2_res_title = "React.dev Official Documentation"
+            task2_res_url = "https://react.dev/reference/react"
+        elif any(k in title_lower for k in ["node", "express", "backend"]):
+            task2_res_title = "Node.js & Express Architecture"
+            task2_res_url = "https://nodejs.org/en/docs"
+        elif any(k in title_lower for k in ["python", "virtualenv", "dunder", "comprehension", "generator"]):
+            task2_res_title = "Python 3 Official Documentation"
+            task2_res_url = "https://docs.python.org/3/"
+        elif any(k in title_lower for k in ["placement portal", "er diagram", "crud", "auth"]):
+            task2_res_title = "Placement Portal Architecture Blueprint"
+            task2_res_url = "#sde"
+        elif any(k in title_lower for k in ["key-value", "wal", "storage engine"]):
+            task2_res_title = "In-Memory KV Store Capstone Blueprint"
+            task2_res_url = "#projects"
+        elif any(k in title_lower for k in ["capstone", "project"]):
+            task2_res_title = "Capstone Projects & Defense Guide"
+            task2_res_url = "#projects"
+        elif any(k in title_lower for k in ["os", "operating system", "process", "thread", "virtual memory", "deadlock"]):
+            task2_res_title = "Operating Systems Concepts (OSTEP)"
+            task2_res_url = "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+        elif any(k in title_lower for k in ["network", "tcp", "http", "dns", "socket"]):
+            task2_res_title = "MDN Web Docs: Networking & HTTP"
+            task2_res_url = "https://developer.mozilla.org/en-US/docs/Web/HTTP"
+        else:
+            task2_res_title = "MDN Web & Systems Reference"
+            task2_res_url = "https://developer.mozilla.org/en-US/docs/Web"
+
         # Task 2: Secondary Focus (SDE, AI/ML, or CS Fundamentals)
         sec_track = "sde" if focus_track == "dsa" else ("aiml" if focus_track == "sde" else "dsa")
         sec_title = f"{focus_topic} - Practical Application & Systems Integration"
@@ -737,11 +868,11 @@ for bp in week_blueprints:
             "track": sec_track,
             "priority": "Medium",
             "estimatedMinutes": 90 if is_weekend else 60,
-            "whyLearn": "Bridges theoretical problem solving with real-world software engineering and data pipelines required for SDE and AI/ML internships.",
-            "taskDetails": "Implement hands-on code modules, write unit tests, or run database queries. Ensure modularity, error handling, and clean code formatting.",
-            "definitionOfDone": "Working code verified locally with clean commits to your personal GitHub repository.",
-            "resourceTitle": "MDN / Python / PostgreSQL Official Docs",
-            "resourceUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
+            "whyLearn": t2_why,
+            "taskDetails": t2_details,
+            "definitionOfDone": t2_dod,
+            "resourceTitle": task2_res_title,
+            "resourceUrl": task2_res_url,
             "isCompleted": False,
             "completedAt": None,
             "notes": "",

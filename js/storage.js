@@ -8,15 +8,22 @@ const STORAGE_KEY = "INTERNSHIP_PREP_DASHBOARD_V2";
 const StorageManager = {
   state: null,
 
-  // Initialize storage
+  // Initialize storage with non-destructive migration
   init() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.version === "1.0.0" && parsed.roadmap) {
+        if (parsed && parsed.roadmap) {
+          // If state is from v1.0.0, migrate to v1.1.0 to ingest updated resource URLs while keeping student progress
+          if (parsed.version === "1.0.0" && typeof initialRoadmapData !== 'undefined') {
+            parsed.roadmap = this.migrateRoadmapTasks(parsed.roadmap, initialRoadmapData);
+            parsed.version = "1.1.0";
+          }
           this.state = parsed;
-          console.log("Loaded existing dashboard state from localStorage.");
+          this.syncCurrentDate();
+          this.saveState();
+          console.log("Loaded existing dashboard state (v" + this.state.version + ") from localStorage.");
           return this.state;
         }
       }
@@ -25,14 +32,71 @@ const StorageManager = {
     }
 
     this.state = this.getDefaultState();
+    this.syncCurrentDate();
     this.saveState();
     return this.state;
+  },
+
+  // Safe migration helper: merges updated task metadata (links, titles) with user progress
+  migrateRoadmapTasks(oldRoadmap, freshRoadmap) {
+    const userProgressMap = new Map();
+    oldRoadmap.forEach(w => {
+      if (w.days) {
+        w.days.forEach(d => {
+          if (d.tasks) {
+            d.tasks.forEach(t => {
+              userProgressMap.set(t.id, {
+                isCompleted: t.isCompleted,
+                completedAt: t.completedAt,
+                notes: t.notes,
+                confidence: t.confidence,
+                githubUrl: t.githubUrl,
+                timeSpent: t.timeSpent,
+                rescheduled: t.rescheduled,
+                rescheduledNote: t.rescheduledNote
+              });
+            });
+          }
+        });
+      }
+    });
+
+    const newRoadmap = JSON.parse(JSON.stringify(freshRoadmap));
+    newRoadmap.forEach(w => {
+      if (w.days) {
+        w.days.forEach(d => {
+          if (d.tasks) {
+            d.tasks.forEach(t => {
+              if (userProgressMap.has(t.id)) {
+                const saved = userProgressMap.get(t.id);
+                Object.assign(t, saved);
+              }
+            });
+          }
+        });
+      }
+    });
+    return newRoadmap;
+  },
+
+  // Automatically sync today's date if within calendar range
+  syncCurrentDate() {
+    if (!this.state || !this.state.settings) return;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    const todayStr = `${y}-${m}-${d}`;
+    if (todayStr >= "2026-11-17" && todayStr <= "2027-05-17") {
+      this.state.settings.todayDate = todayStr;
+      this.state.lastActiveDate = todayStr;
+    }
   },
 
   // Generate complete default state
   getDefaultState() {
     return {
-      version: "1.0.0",
+      version: "1.1.0",
       createdAt: new Date().toISOString(),
       lastActiveDate: "2026-11-17",
       studentProfile: {
@@ -184,13 +248,18 @@ const StorageManager = {
     return found;
   },
 
-  // Spaced Repetition Intervals (Day 1, 3, 7, 14, 30)
+  // Spaced Repetition Intervals (Day 1, 3, 7, 14, 30) - Timezone-safe
   calculateNextRevisionDate(lastDateStr, revisionCount) {
     const intervals = [1, 3, 7, 14, 30, 45, 60];
     const daysToAdd = intervals[Math.min(revisionCount, intervals.length - 1)];
-    const baseDate = lastDateStr ? new Date(lastDateStr) : new Date("2026-11-17");
+    const baseStr = lastDateStr || (this.state && this.state.settings ? this.state.settings.todayDate : "2026-11-17");
+    const [y, m, d] = baseStr.split("-").map(Number);
+    const baseDate = new Date(y, m - 1, d);
     baseDate.setDate(baseDate.getDate() + daysToAdd);
-    return baseDate.toISOString().split("T")[0];
+    const resY = baseDate.getFullYear();
+    const resM = String(baseDate.getMonth() + 1).padStart(2, "0");
+    const resD = String(baseDate.getDate()).padStart(2, "0");
+    return `${resY}-${resM}-${resD}`;
   },
 
   // Update DSA problem status and spaced repetition queue
@@ -246,6 +315,14 @@ const StorageManager = {
 
     this.saveState();
     return true;
+  },
+
+  // Update Student Profile
+  updateProfile(updates) {
+    if (!this.state.studentProfile) this.state.studentProfile = {};
+    this.state.studentProfile = { ...this.state.studentProfile, ...updates };
+    this.saveState();
+    return this.state.studentProfile;
   },
 
   // Add custom DSA Problem
@@ -504,12 +581,13 @@ const StorageManager = {
     const independentLogs = aiLogs.filter(l => l.aiAssistanceLevel === "None / 0%" || l.aiAssistanceLevel === "Conceptual Explanation");
     const aiIndependenceRatio = aiLogs.length ? Math.round((independentLogs.length / aiLogs.length) * 100) : 85;
 
-    // Days calculation
-    const startDate = new Date("2026-11-17");
-    const endDate = new Date("2027-05-17");
-    const today = new Date(state.settings.todayDate || "2026-11-17");
-    const diffTime = Math.max(0, today - startDate);
-    const dayNumber = Math.min(182, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
+    // Days calculation (timezone-safe using local calendar dates)
+    const startDate = new Date(2026, 10, 17); // Nov 17, 2026
+    const todayStr = (state.settings && state.settings.todayDate) ? state.settings.todayDate : "2026-11-17";
+    const [tY, tM, tD] = todayStr.split("-").map(Number);
+    const todayDateObj = new Date(tY, tM - 1, tD);
+    const diffTime = Math.max(0, todayDateObj - startDate);
+    const dayNumber = Math.min(182, Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1));
     const currentWeekNumber = Math.min(26, Math.floor((dayNumber - 1) / 7) + 1);
     const daysRemaining = Math.max(0, 182 - dayNumber);
 

@@ -6,22 +6,97 @@
 const App = {
   currentView: "dashboard",
   searchQuery: "",
+  activeDayNumber: null, // Dynamic: null indicates default to today's calendar day
   audioRecorder: null,
   audioChunks: [],
   recordingInterval: null,
   recordSeconds: 0,
+  isSimulatedRecording: false,
 
   init() {
     this.bindGlobalEvents();
     this.applyTheme(StorageManager.getState().theme || "light");
+
+    // Check URL hash on load for deep linking (e.g. #dsa, #today, #communication)
+    const initialHash = window.location.hash ? window.location.hash.slice(1).toLowerCase() : "";
+    const validViews = ["dashboard", "today", "roadmap", "dsa", "sde", "aiml", "projects", "ailog", "communication", "applications", "assessments", "resources", "settings"];
+    const startView = validViews.includes(initialHash) ? initialHash : "dashboard";
+
     this.updateHeaderBadges();
-    this.navigate("dashboard");
+    this.navigate(startView);
 
     // Listen to custom state update events
     window.addEventListener("app-state-updated", () => {
       this.updateHeaderBadges();
       this.renderCurrentView();
     });
+
+    // Listen to hash changes
+    window.addEventListener("hashchange", () => {
+      const hash = window.location.hash.slice(1).toLowerCase();
+      if (validViews.includes(hash) && this.currentView !== hash) {
+        this.navigate(hash);
+      }
+    });
+  },
+
+  // Active day number getter
+  getActiveDayNumber() {
+    if (this.activeDayNumber !== null && this.activeDayNumber >= 1 && this.activeDayNumber <= 182) {
+      return this.activeDayNumber;
+    }
+    const stats = StorageManager.getOverallStats();
+    this.activeDayNumber = stats.dayNumber || 1;
+    return this.activeDayNumber;
+  },
+
+  prevDay() {
+    const cur = this.getActiveDayNumber();
+    if (cur > 1) {
+      this.activeDayNumber = cur - 1;
+      this.updateHeaderBadges();
+      if (this.currentView === "today") {
+        this.renderCurrentView();
+      } else {
+        this.navigate("today");
+      }
+    }
+  },
+
+  nextDay() {
+    const cur = this.getActiveDayNumber();
+    if (cur < 182) {
+      this.activeDayNumber = cur + 1;
+      this.updateHeaderBadges();
+      if (this.currentView === "today") {
+        this.renderCurrentView();
+      } else {
+        this.navigate("today");
+      }
+    }
+  },
+
+  jumpToToday() {
+    const stats = StorageManager.getOverallStats();
+    this.activeDayNumber = stats.dayNumber || 1;
+    this.updateHeaderBadges();
+    if (this.currentView === "today") {
+      this.renderCurrentView();
+    } else {
+      this.navigate("today");
+    }
+    this.showToast(`Active Day set to Today (Day ${this.activeDayNumber})`, "info");
+  },
+
+  setDay(dayNum) {
+    const clamped = Math.min(182, Math.max(1, parseInt(dayNum, 10) || 1));
+    this.activeDayNumber = clamped;
+    this.updateHeaderBadges();
+    if (this.currentView === "today") {
+      this.renderCurrentView();
+    } else {
+      this.navigate("today");
+    }
   },
 
   // Navigation router
@@ -136,13 +211,32 @@ const App = {
     if (searchInput) {
       searchInput.addEventListener("input", e => {
         this.searchQuery = e.target.value.toLowerCase().trim();
-        if (this.searchQuery && this.currentView !== "dsa" && this.currentView !== "resources") {
-          this.navigate("dsa");
-        } else {
+        if (!this.searchQuery) {
           this.renderCurrentView();
+          return;
+        }
+        if (["dsa", "resources", "roadmap"].includes(this.currentView)) {
+          this.renderCurrentView();
+        } else {
+          this.navigate("dsa");
         }
       });
     }
+
+    // Global Keyboard Shortcuts (Cmd+K / Ctrl+K for search, Escape to close modals)
+    document.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        const searchInput = document.getElementById("global-search-input");
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+      if (e.key === "Escape") {
+        this.closeAllModals();
+      }
+    });
 
     // Modal Close buttons
     document.querySelectorAll(".modal-close-btn, .modal-cancel-btn").forEach(btn => {
@@ -179,9 +273,29 @@ const App = {
     const progressFill = document.getElementById("header-progress-fill");
     if (progressFill) progressFill.style.width = `${stats.percentComplete}%`;
 
+    // Active Day & Week calculations
+    const activeDay = this.getActiveDayNumber();
+    const activeWeek = Math.min(26, Math.floor((activeDay - 1) / 7) + 1);
+
+    // Compute active date string (Nov 17 2026 + activeDay - 1)
+    const startDate = new Date(2026, 10, 17);
+    const activeDateObj = new Date(startDate);
+    activeDateObj.setDate(startDate.getDate() + (activeDay - 1));
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const formattedDate = `${dayNames[activeDateObj.getDay()]}, ${activeDateObj.getDate()} ${monthNames[activeDateObj.getMonth()]} ${activeDateObj.getFullYear()}`;
+
     // Week & Day pill
     const weekPill = document.getElementById("header-week-pill");
-    if (weekPill) weekPill.textContent = `Week ${stats.currentWeekNumber} • Day ${stats.dayNumber}`;
+    if (weekPill) weekPill.textContent = `Week ${activeWeek} • Day ${activeDay}`;
+
+    // Header Date Text
+    const dateText = document.getElementById("header-date-text");
+    if (dateText) dateText.textContent = formattedDate;
+
+    // Sidebar Day Badge
+    const sidebarDayBadge = document.getElementById("sidebar-day-badge");
+    if (sidebarDayBadge) sidebarDayBadge.textContent = `Day ${activeDay}`;
 
     // Exam Mode status
     const examBtn = document.getElementById("header-exam-btn");
@@ -235,8 +349,12 @@ const App = {
     const stats = StorageManager.getOverallStats();
     const state = StorageManager.getState();
     const revisionQueue = StorageManager.getSpacedRevisionQueue();
-    const week1 = state.roadmap ? state.roadmap[0] : null;
-    const day1 = week1 && week1.days ? week1.days[0] : null;
+
+    const activeDayNum = this.getActiveDayNumber();
+    const activeWeekNum = Math.min(26, Math.floor((activeDayNum - 1) / 7) + 1);
+    const dayIdx = (activeDayNum - 1) % 7;
+    const activeWeek = state.roadmap ? state.roadmap.find(w => w.weekNumber === activeWeekNum) || state.roadmap[0] : null;
+    const activeDay = activeWeek && activeWeek.days ? activeWeek.days[dayIdx] : null;
 
     container.innerHTML = `
       <div class="view-header">
@@ -251,6 +369,26 @@ const App = {
               View Today's Tasks
             </button>
             <button class="btn-secondary" onclick="App.navigate('dsa')">DSA Revision Queue (${stats.revisionDueCount})</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick-Start Onboarding Guide Banner -->
+      <div class="card-panel" style="background: linear-gradient(135deg, rgba(79, 91, 255, 0.08), rgba(6, 182, 212, 0.08)); border: 1px solid rgba(79, 91, 255, 0.25); margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-size: 14px; font-weight: 700; color: var(--accent-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <span>🧭</span> Quick-Start Guide: Your 3-Step Daily Routine
+            </h3>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+              1. <strong>Solve Assigned DSA Problems:</strong> Dedicate 60–90 mins using the 25-minute struggle rule before checking hints.<br/>
+              2. <strong>Clear Spaced Revisions:</strong> Re-solve problems flagged at Day 1, 3, 7, 14, 30 to lock algorithms into memory.<br/>
+              3. <strong>Record 1 Technical Explanation:</strong> Use the voice recorder in the English Hub to master interview articulation.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" onclick="App.navigate('today')">Open Action Studio</button>
+            <button class="btn-secondary" onclick="App.navigate('settings')">Configure Profile</button>
           </div>
         </div>
       </div>
@@ -377,17 +515,17 @@ const App = {
           <div>
             <span class="card-panel-title">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              Today's Execution Schedule: Tuesday, 17 November 2026 (Day 1)
+              Today's Execution Schedule: ${activeDay ? activeDay.dayName + ', ' + activeDay.date : 'Day ' + activeDayNum} (Day ${activeDayNum})
             </span>
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
-              Theme: Time Complexity & Big-O Loop Invariants • Target: 3.5 Productive Study Hours
+              Theme: ${activeDay ? activeDay.focusArea : 'Engineering Preparation'} • Target: ${activeDay ? activeDay.hoursPlanned : 3.5} Productive Study Hours
             </div>
           </div>
-          <button class="btn-primary" onclick="App.navigate('today')">Open Task Studio →</button>
+          <button class="btn-primary" onclick="App.navigate('today')">Open Action Studio →</button>
         </div>
 
         <div class="task-list">
-          ${day1 && day1.tasks ? day1.tasks.map(t => this.renderTaskCardHtml(t)).join('') : '<p class="text-muted">No tasks loaded.</p>'}
+          ${activeDay && activeDay.tasks ? activeDay.tasks.map(t => this.renderTaskCardHtml(t)).join('') : '<p class="text-muted">No tasks loaded.</p>'}
         </div>
       </div>
     `;
@@ -409,22 +547,76 @@ const App = {
     const stats = StorageManager.getOverallStats();
     const isExam = state.examMode && state.examMode.isEnabled;
 
-    // Default to Week 1 Day 1 (2026-11-17)
-    const week = state.roadmap ? state.roadmap[0] : null;
-    const day = week && week.days ? week.days[0] : null;
+    const activeDayNum = this.getActiveDayNumber();
+    const activeWeekNum = Math.min(26, Math.floor((activeDayNum - 1) / 7) + 1);
+    const dayIdx = (activeDayNum - 1) % 7;
+
+    const week = state.roadmap ? state.roadmap.find(w => w.weekNumber === activeWeekNum) || state.roadmap[0] : null;
+    const day = week && week.days ? week.days[dayIdx] : null;
+
+    // Check if all actionable tasks for this day are verified
+    const actionableTasks = day && day.tasks ? day.tasks.filter(t => !isExam || t.isExamMaintenance) : [];
+    const allDone = actionableTasks.length > 0 && actionableTasks.every(t => t.isCompleted);
+    const completedCount = actionableTasks.filter(t => t.isCompleted).length;
 
     container.innerHTML = `
       <div class="view-header">
         <div class="view-title-row">
           <div>
             <h1 class="view-title">Today's Action Studio</h1>
-            <p class="view-subtitle">${day ? day.dayName : 'Tuesday'}, ${day ? day.date : '2026-11-17'} • Week 1 • Day 1 of 182</p>
+            <p class="view-subtitle">${day ? day.dayName : 'Tuesday'}, ${day ? day.date : '2026-11-17'} • Week ${activeWeekNum} • Day ${activeDayNum} of 182</p>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-secondary" onclick="App.navigate('roadmap')">View Full 26-Week Schedule</button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="btn-secondary" onclick="App.prevDay()" ${activeDayNum <= 1 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''} title="Previous Day">
+              ◀ Prev Day
+            </button>
+            <select class="form-select" id="today-day-select" onchange="App.setDay(this.value)" style="padding: 6px 10px; font-size: 12px; font-weight: 600; background: var(--bg-card); color: var(--text-primary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); cursor: pointer;">
+              ${Array.from({ length: 182 }, (_, i) => {
+                const dNum = i + 1;
+                const wNum = Math.min(26, Math.floor(i / 7) + 1);
+                return `<option value="${dNum}" ${dNum === activeDayNum ? 'selected' : ''}>Day ${dNum} (W${wNum})${dNum === stats.dayNumber ? ' - Today' : ''}</option>`;
+              }).join('')}
+            </select>
+            <button class="btn-secondary" onclick="App.jumpToToday()" title="Jump to actual calendar date (Day ${stats.dayNumber})">
+              Today (Day ${stats.dayNumber})
+            </button>
+            <button class="btn-secondary" onclick="App.nextDay()" ${activeDayNum >= 182 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''} title="Next Day">
+              Next Day ▶
+            </button>
+            <button class="btn-primary" onclick="App.navigate('roadmap')" title="View 26-Week Schedule">
+              Full Roadmap
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- Day Completion & Advancement Banner -->
+      ${allDone ? `
+        <div class="card-panel" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.35); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="color: var(--accent-success); font-size: 14px; font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
+              <span>🎉</span> Day ${activeDayNum} Tasks Completed & Verified!
+            </h3>
+            <p style="font-size: 12px; color: var(--text-secondary);">
+              All ${actionableTasks.length} tasks satisfied the Definition of Done. Ready to advance to the next day's schedule?
+            </p>
+          </div>
+          ${activeDayNum < 182 ? `
+            <button class="btn-primary" onclick="App.nextDay()" style="font-weight: 700; background: var(--accent-success); border-color: var(--accent-success); color: #fff;">
+              Advance to Day ${activeDayNum + 1} ▶
+            </button>
+          ` : `
+            <span class="badge badge-success">Roadmap Completed! 🏆</span>
+          `}
+        </div>
+      ` : (completedCount > 0 ? `
+        <div class="card-panel" style="background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); margin-bottom: 16px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; color: var(--text-secondary);">
+            Progress for Day ${activeDayNum}: <strong style="color: var(--accent-cyan);">${completedCount} of ${actionableTasks.length}</strong> tasks completed
+          </span>
+          <span style="font-size: 12px; font-weight: 600; color: var(--accent-cyan);">${Math.round((completedCount / actionableTasks.length) * 100)}%</span>
+        </div>
+      ` : '')}
 
       ${isExam ? `
         <div class="card-panel" style="border-left: 4px solid var(--accent-warning); background-color: rgba(245, 158, 11, 0.05); margin-bottom: 20px;">
@@ -566,22 +758,31 @@ const App = {
             <div class="task-badges-line">
               <span class="badge badge-${task.track || 'dsa'}">${task.track || 'DSA'}</span>
               <span class="badge badge-priority-${(task.priority || 'med').toLowerCase().slice(0, 3)}">${task.priority || 'Medium'}</span>
-              ${task.resourceTitle ? `
-                <a href="${task.resourceUrl || '#'}" target="_blank" rel="noopener noreferrer" class="badge" style="background: var(--bg-tertiary); color: var(--accent-cyan);">
-                  ↗ ${task.resourceTitle}
-                </a>
-              ` : ''}
+              ${task.resourceTitle ? (
+                task.resourceUrl && task.resourceUrl.startsWith('#') ? `
+                  <a href="javascript:void(0)" onclick="App.navigate('${task.resourceUrl.slice(1)}')" class="badge" style="background: var(--bg-tertiary); color: var(--accent-cyan); cursor: pointer;" title="Navigate directly to ${task.resourceTitle}">
+                    ↗ ${task.resourceTitle}
+                  </a>
+                ` : `
+                  <a href="${task.resourceUrl || '#'}" target="_blank" rel="noopener noreferrer" class="badge" style="background: var(--bg-tertiary); color: var(--accent-cyan);" title="Open official documentation/problem">
+                    ↗ ${task.resourceTitle}
+                  </a>
+                `
+              ) : ''}
             </div>
 
             ${showDoD ? `
-              <div class="task-details-collapsible">
-                <div style="margin-bottom: 4px;"><strong>Why you are studying this:</strong> ${task.whyLearn || 'Foundational topic for internship technical rounds.'}</div>
-                <div><strong>Actionable steps:</strong> ${task.taskDetails || 'Study concept -> brute force -> optimize -> test edge cases.'}</div>
-              </div>
+              <details class="task-details-collapsible" ${isDone ? '' : 'open'}>
+                <summary style="cursor:pointer; font-size:11.5px; font-weight:600; color:var(--accent-primary); list-style:none; display:flex; align-items:center; gap:5px; margin-bottom:6px;">
+                  <span class="details-toggle-icon">▶</span> Why & How to execute
+                </summary>
+                <div style="margin-bottom: 6px;"><strong>Why you are studying this:</strong> ${task.whyLearn || 'Foundational topic for internship technical rounds.'}</div>
+                <div><strong>Actionable steps:</strong><br/>${(task.taskDetails || 'Study concept → brute force → optimize → test edge cases.').replace(/\n/g, '<br/>')}</div>
 
-              <div class="task-dod-box">
-                <strong>Definition of Done:</strong> ${task.definitionOfDone || 'Can reproduce solution independently and explain Big-O complexity.'}
-              </div>
+                <div class="task-dod-box" style="margin-top:8px;">
+                  <strong>Definition of Done:</strong> ${task.definitionOfDone || 'Can reproduce solution independently and explain Big-O complexity.'}
+                </div>
+              </details>
             ` : ''}
 
             <div class="task-actions-row">
@@ -1664,6 +1865,17 @@ const App = {
     const audioBox = document.getElementById("daily-audio-box");
     const audioPlayer = document.getElementById("audio-playback");
 
+    // If simulated timer is active, stop it cleanly
+    if (this.isSimulatedRecording) {
+      clearInterval(this.recordingInterval);
+      this.isSimulatedRecording = false;
+      if (audioBox) audioBox.classList.remove("recording");
+      if (statusText) statusText.textContent = "Completed";
+      if (btn) btn.innerHTML = `<svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg> Record Answer`;
+      this.showToast("Speaking practice finished! Log your speaking entry.", "info");
+      return;
+    }
+
     if (!this.audioRecorder || this.audioRecorder.state === "inactive") {
       // Start recording
       navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -1677,14 +1889,16 @@ const App = {
         this.audioRecorder.onstop = () => {
           const audioBlob = new Blob(this.audioChunks, { type: "audio/webm" });
           const audioUrl = URL.createObjectURL(audioBlob);
-          audioPlayer.src = audioUrl;
-          audioPlayer.style.display = "block";
+          if (audioPlayer) {
+            audioPlayer.src = audioUrl;
+            audioPlayer.style.display = "block";
+          }
           stream.getTracks().forEach(t => t.stop());
         };
 
         this.audioRecorder.start();
         this.recordSeconds = 0;
-        audioBox.classList.add("recording");
+        if (audioBox) audioBox.classList.add("recording");
         if (statusText) statusText.textContent = "Recording...";
         if (btn) btn.innerHTML = `<span>■</span> Stop Recording`;
 
@@ -1704,7 +1918,7 @@ const App = {
       // Stop recording
       this.audioRecorder.stop();
       clearInterval(this.recordingInterval);
-      audioBox.classList.remove("recording");
+      if (audioBox) audioBox.classList.remove("recording");
       if (statusText) statusText.textContent = "Completed";
       if (btn) btn.innerHTML = `<svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg> Record Answer`;
       this.showToast("Recording stopped. Listen back to critique your fluency!", "info");
@@ -1712,9 +1926,12 @@ const App = {
   },
 
   startSimulatedTimer(timerDisplay, statusText, btn) {
+    this.isSimulatedRecording = true;
     let secs = 180;
+    const audioBox = document.getElementById("daily-audio-box");
+    if (audioBox) audioBox.classList.add("recording");
     if (statusText) statusText.textContent = "Speaking Practice Active";
-    if (btn) btn.textContent = "Stop Practice";
+    if (btn) btn.innerHTML = `<span>■</span> Stop Practice`;
     this.recordingInterval = setInterval(() => {
       secs--;
       const m = String(Math.floor(secs / 60)).padStart(2, "0");
@@ -1722,8 +1939,10 @@ const App = {
       if (timerDisplay) timerDisplay.textContent = `${m}:${s}`;
       if (secs <= 0) {
         clearInterval(this.recordingInterval);
+        this.isSimulatedRecording = false;
+        if (audioBox) audioBox.classList.remove("recording");
         if (statusText) statusText.textContent = "Practice Done";
-        if (btn) btn.textContent = "Practice Again";
+        if (btn) btn.innerHTML = `<svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg> Record Answer`;
       }
     }, 1000);
   },
@@ -2188,13 +2407,17 @@ const App = {
         <div>
           <!-- Candidate Engineering Profile -->
           <div class="card-panel">
-            <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 14px; color: var(--accent-primary);">Candidate Engineering Profile</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <h2 style="font-size: 16px; font-weight: 700; color: var(--accent-primary);">Candidate Engineering Profile</h2>
+              <button class="btn-sm-action" onclick="App.openEditProfileModal()">✏ Edit Profile</button>
+            </div>
             <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+              <div><strong>Candidate Name:</strong> ${prof.name || 'Candidate Engineer'}</div>
               <div><strong>Program:</strong> ${prof.degree} in ${prof.specialization} (${prof.semester})</div>
               <div><strong>Institution:</strong> ${prof.college} • <strong>Graduation:</strong> ${prof.expectedGraduation}</div>
               <div><strong>Academic Standing:</strong> Cumulative CGPA <span style="color: var(--accent-success); font-weight: 700;">${prof.cgpa}</span></div>
               <div><strong>Core Engineering Stack:</strong> C++ (DSA), Python (AI/ML), JavaScript (Full-Stack), SQL</div>
-              <div><strong>Daily Study Targets:</strong> Mon–Fri: 3.5 hrs/day • Sat–Sun: 6.5 hrs/day (~26 hrs/wk)</div>
+              <div><strong>Daily Study Targets:</strong> Mon–Fri: ${prof.dailyAvailability?.weekdaysHours || '3.5 hrs/day'} • Sat–Sun: ${prof.dailyAvailability?.weekendsHours || '6.5 hrs/day'}</div>
             </div>
           </div>
 
@@ -2298,6 +2521,44 @@ const App = {
       }
     };
     reader.readAsText(file);
+  },
+
+  openEditProfileModal() {
+    const state = StorageManager.getState();
+    const prof = state.studentProfile || {};
+    const modal = document.getElementById("profile-edit-modal");
+    if (!modal) return;
+
+    document.getElementById("edit-prof-name").value = prof.name || "";
+    document.getElementById("edit-prof-degree").value = prof.degree || "B.Tech";
+    document.getElementById("edit-prof-spec").value = prof.specialization || "Artificial Intelligence and Machine Learning";
+    document.getElementById("edit-prof-college").value = prof.college || "";
+    document.getElementById("edit-prof-cgpa").value = prof.cgpa || 8.0;
+    document.getElementById("edit-prof-grad").value = prof.expectedGraduation || 2028;
+
+    modal.classList.add("active");
+  },
+
+  saveEditProfile() {
+    const name = document.getElementById("edit-prof-name").value.trim() || "Candidate Engineer";
+    const degree = document.getElementById("edit-prof-degree").value.trim() || "B.Tech";
+    const specialization = document.getElementById("edit-prof-spec").value.trim() || "Computer Science / AIML";
+    const college = document.getElementById("edit-prof-college").value.trim() || "Engineering Institute";
+    const cgpa = parseFloat(document.getElementById("edit-prof-cgpa").value) || 8.0;
+    const expectedGraduation = parseInt(document.getElementById("edit-prof-grad").value, 10) || 2028;
+
+    StorageManager.updateProfile({
+      name,
+      degree,
+      specialization,
+      college,
+      cgpa,
+      expectedGraduation
+    });
+
+    this.closeAllModals();
+    this.showToast("Candidate profile updated successfully!", "success");
+    this.renderCurrentView();
   },
 
   confirmResetProgress() {
