@@ -13,7 +13,7 @@ const App = {
 
   init() {
     this.bindGlobalEvents();
-    this.applyTheme(StorageManager.getState().theme || "dark");
+    this.applyTheme(StorageManager.getState().theme || "light");
     this.updateHeaderBadges();
     this.navigate("dashboard");
 

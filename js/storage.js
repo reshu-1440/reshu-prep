@@ -128,7 +128,7 @@ const StorageManager = {
         reducedTargetEnglishMins: 15,
         pausedTasks: []
       },
-      theme: "dark",
+      theme: "light",
       settings: {
         targetDsaCount: 115,
         targetApplicationsPerWeek: 7,

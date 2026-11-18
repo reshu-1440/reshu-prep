@@ -35,15 +35,15 @@ const Charts = {
       const y = padding.top + (chartH - barH);
 
       const isCurrent = w.weekNumber === currentWeek;
-      const barColor = isCurrent ? "var(--accent-primary)" : (percent > 0 ? "var(--accent-success)" : "var(--bg-tertiary)");
-      const strokeColor = isCurrent ? "var(--accent-cyan)" : "none";
+      const barColor = isCurrent ? "var(--accent-warning)" : (percent > 0 ? "var(--accent-primary)" : "var(--bg-tertiary)");
+      const strokeColor = isCurrent ? "var(--accent-warning)" : "none";
 
       barsSvg += `
         <g class="chart-bar-group" data-tooltip="Week ${w.weekNumber}: ${Math.round(percent)}% complete (${completedTasks}/${totalTasks} tasks)">
-          <rect x="${x}" y="${padding.top}" width="${barWidth}" height="${chartH}" rx="3" fill="var(--bg-secondary)" opacity="0.4" />
-          <rect x="${x}" y="${y}" width="${barWidth}" height="${barH}" rx="3" fill="${barColor}" stroke="${strokeColor}" stroke-width="${isCurrent ? '2' : '0'}" />
+          <rect x="${x}" y="${padding.top}" width="${barWidth}" height="${chartH}" rx="5" fill="var(--bg-secondary)" opacity="0.65" />
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${barH}" rx="5" fill="${barColor}" stroke="${strokeColor}" stroke-width="${isCurrent ? '2' : '0'}" />
           ${(i + 1) % 4 === 1 || i === 25 ? `
-            <text x="${x + barWidth / 2}" y="${height - 10}" fill="var(--text-muted)" font-size="10" text-anchor="middle">W${w.weekNumber}</text>
+            <text x="${x + barWidth / 2}" y="${height - 10}" fill="var(--text-muted)" font-size="10" font-weight="600" text-anchor="middle">W${w.weekNumber}</text>
           ` : ''}
         </g>
       `;
