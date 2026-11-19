@@ -9,11 +9,11 @@
  */
 const SUPABASE_CONFIG = {
   // Your Supabase Project URL (e.g., "https://abcdefghijkl.supabase.co")
-  url: "",
+  url: "https://fdqisitghvlacbktqavi.supabase.co",
 
   // Your Supabase Anon/Public API Key (e.g., "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-  anonKey: "",
+  anonKey: "sb_publishable_e-sDu2fq7tZ9dnfKO9_mbw_eAieUlUf",
 
   // Optional: A default Sync Key (e.g., "candidate-180-prep") so your laptop & mobile automatically sync
-  defaultSyncId: ""
+  defaultSyncId: "reshu-prp"
 };

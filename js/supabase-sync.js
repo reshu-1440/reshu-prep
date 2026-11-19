@@ -25,12 +25,19 @@ const SupabaseSync = {
     LAST_SYNC: "PREP_SUPABASE_LAST_SYNC_TIME"
   },
 
+  // URL sanitizer to strip trailing /rest/v1 or slashes
+  cleanUrl(rawUrl) {
+    if (!rawUrl) return "";
+    return rawUrl.trim().replace(/\/rest\/v1\/?$/i, "").replace(/\/+$/, "");
+  },
+
   // Initialize sync client on page load
   async init() {
     try {
-      const savedUrl = localStorage.getItem(this.STORAGE_KEYS.URL) || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.url : "");
-      const savedKey = localStorage.getItem(this.STORAGE_KEYS.KEY) || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.anonKey : "");
-      const savedSyncId = localStorage.getItem(this.STORAGE_KEYS.SYNC_ID) || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.defaultSyncId : "");
+      const rawUrl = localStorage.getItem(this.STORAGE_KEYS.URL) || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.url : "");
+      const savedUrl = this.cleanUrl(rawUrl);
+      const savedKey = (localStorage.getItem(this.STORAGE_KEYS.KEY) || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.anonKey : "") || "").trim();
+      const savedSyncId = (localStorage.getItem(this.STORAGE_KEYS.SYNC_ID) || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.defaultSyncId : "") || "").trim();
       const savedAutoSync = localStorage.getItem(this.STORAGE_KEYS.AUTOSYNC);
       this.autoSync = savedAutoSync !== null ? savedAutoSync === "true" : true;
       this.syncId = (savedSyncId || "").trim();
@@ -370,7 +377,7 @@ const SupabaseSync = {
 
   // Save new configuration from UI Modal
   async saveConfig(url, key, syncId, autoSync) {
-    url = (url || "").trim();
+    url = this.cleanUrl(url);
     key = (key || "").trim();
     syncId = (syncId || "").trim();
 
