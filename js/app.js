@@ -337,6 +337,23 @@ const App = {
     const progressFill = document.getElementById("header-progress-fill");
     if (progressFill) progressFill.style.width = `${stats.percentComplete}%`;
 
+    // Streak Pill
+    const streakBtn = document.getElementById("header-streak-btn");
+    const streakCount = document.getElementById("header-streak-count");
+    const streakInfo = StorageManager.getStreakInfo();
+
+    if (streakBtn && streakCount) {
+      if (streakInfo.currentStreak > 0) {
+        streakBtn.classList.remove("inactive");
+        streakCount.textContent = `${streakInfo.currentStreak} Day${streakInfo.currentStreak > 1 ? 's' : ''}`;
+        streakBtn.title = streakInfo.message;
+      } else {
+        streakBtn.classList.add("inactive");
+        streakCount.textContent = "0 Days";
+        streakBtn.title = "Start your streak today! Complete 1 task.";
+      }
+    }
+
     // Active Day & Week calculations
     const activeDay = this.getActiveDayNumber();
     const activeWeek = Math.min(26, Math.floor((activeDay - 1) / 7) + 1);
@@ -454,6 +471,29 @@ const App = {
             <button class="btn-secondary" onclick="App.navigate('today')">Open Action Studio</button>
             <button class="btn-secondary" onclick="App.navigate('settings')">Configure Profile</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Study Streak & Habit Momentum Callout -->
+      <div class="card-panel" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(234, 88, 12, 0.03)); border: 1px solid rgba(249, 115, 22, 0.28); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="streak-flame" style="font-size: 28px;">🔥</span>
+          <div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--accent-warning);">
+              ${stats.streakInfo.currentStreak > 0 ? `${stats.streakInfo.currentStreak}-Day Active Study Streak` : 'Daily Streak Engine: Ready'}
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+              ${stats.streakInfo.message} • Best All-Time: <strong>${stats.streakInfo.bestStreak} Days</strong>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge" style="background: rgba(249, 115, 22, 0.15); color: var(--accent-warning); font-size: 11px;">
+            Next: ${stats.streakInfo.nextMilestone.name} (${stats.streakInfo.daysToNextMilestone}d to go)
+          </span>
+          <button class="btn-sm-action" onclick="App.openStreakModal()" style="border-color: rgba(249, 115, 22, 0.35); color: var(--accent-warning);">
+            View Trophies 🏆
+          </button>
         </div>
       </div>
 
@@ -694,6 +734,20 @@ const App = {
 
       <div class="dashboard-grid-2col">
         <div>
+          <!-- Daily Streak Momentum Banner -->
+          <div style="background: linear-gradient(90deg, rgba(249, 115, 22, 0.08), rgba(234, 88, 12, 0.03)); border: 1px solid rgba(249, 115, 22, 0.28); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="streak-flame" style="font-size: 16px;">🔥</span>
+              <strong style="font-size: 12px; color: var(--accent-warning);">
+                ${StorageManager.getStreakInfo().currentStreak > 0 ? `${StorageManager.getStreakInfo().currentStreak}-Day Streak Active!` : 'Day 0 • Start your streak today!'}
+              </strong>
+              <span style="font-size: 11px; color: var(--text-secondary);">${StorageManager.getStreakInfo().message}</span>
+            </div>
+            <button class="btn-sm-action" onclick="App.openStreakModal()" style="font-size: 11px; padding: 3px 9px; border-color: rgba(249, 115, 22, 0.35); color: var(--accent-warning);">
+              🏆 View Milestones (${StorageManager.getStreakInfo().daysToNextMilestone}d to next badge)
+            </button>
+          </div>
+
           <!-- Focus & Hours Header -->
           <div class="card-panel" style="margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -1088,6 +1142,66 @@ Please teach me using the Socratic method with the following structure:
     } else {
       prompt("Copy this AI Tutor Prompt (Ctrl+C) and paste into your AI:", promptText);
     }
+  },
+
+  // Open Daily Streak & Milestones Modal
+  openStreakModal() {
+    const modal = document.getElementById("streak-modal");
+    if (!modal) return;
+
+    const streakInfo = StorageManager.getStreakInfo();
+
+    const countEl = document.getElementById("modal-streak-count");
+    const msgEl = document.getElementById("modal-streak-msg");
+    const bestEl = document.getElementById("modal-streak-best");
+    const titleEl = document.getElementById("modal-next-milestone-title");
+    const pctEl = document.getElementById("modal-milestone-pct");
+    const barEl = document.getElementById("modal-milestone-bar");
+    const subEl = document.getElementById("modal-milestone-sub");
+    const remEl = document.getElementById("modal-milestone-rem");
+    const trophiesContainer = document.getElementById("modal-trophies-container");
+
+    if (countEl) countEl.textContent = `${streakInfo.currentStreak} Day${streakInfo.currentStreak !== 1 ? 's' : ''}`;
+    if (msgEl) msgEl.textContent = streakInfo.message;
+    if (bestEl) bestEl.textContent = `Best All-Time Streak: ${streakInfo.bestStreak} Day${streakInfo.bestStreak !== 1 ? 's' : ''}`;
+
+    const nextM = streakInfo.nextMilestone;
+    const pct = Math.min(100, Math.round((streakInfo.currentStreak / nextM.days) * 100));
+
+    if (titleEl) titleEl.textContent = `Next Milestone: ${nextM.name} ${nextM.icon}`;
+    if (pctEl) pctEl.textContent = `${pct}%`;
+    if (barEl) barEl.style.width = `${pct}%`;
+    if (subEl) subEl.textContent = `${nextM.days} consecutive days required`;
+    if (remEl) remEl.textContent = `${streakInfo.daysToNextMilestone} more day${streakInfo.daysToNextMilestone > 1 ? 's' : ''} to unlock`;
+
+    const allMilestones = [
+      { days: 7, name: "7-Day Consistency Club", icon: "🌱", reward: "Week 1 Foundation Unlocked" },
+      { days: 14, name: "14-Day Habit Master", icon: "⚡", reward: "Active Recall Habit Established" },
+      { days: 30, name: "30-Day Algorithm Warrior", icon: "⚔️", reward: "Month 1 DSA Mastery Reached" },
+      { days: 60, name: "60-Day Systems Architect", icon: "🏛️", reward: "Core CS & Full-Stack Pro" },
+      { days: 100, name: "100-Day SDE Contender", icon: "💎", reward: "Century Club Elite Tier" },
+      { days: 180, name: "180-Day Placement Titan", icon: "🏆", reward: "Full Internship Offer Ready" }
+    ];
+
+    if (trophiesContainer) {
+      trophiesContainer.innerHTML = allMilestones.map(m => {
+        const isUnlocked = streakInfo.currentStreak >= m.days || streakInfo.bestStreak >= m.days;
+        return `
+          <div class="streak-trophy-card ${isUnlocked ? 'unlocked' : 'locked'}">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 20px;">${m.icon}</span>
+              <span class="badge" style="background: ${isUnlocked ? 'var(--accent-warning-subtle)' : 'var(--bg-tertiary)'}; color: ${isUnlocked ? 'var(--accent-warning)' : 'var(--text-muted)'}; font-size: 10px;">
+                ${isUnlocked ? '✓ Unlocked' : `${m.days}d`}
+              </span>
+            </div>
+            <strong style="font-size: 12px; color: var(--text-primary); margin-top: 4px;">${m.name}</strong>
+            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">${m.reward}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    modal.classList.add("active");
   },
 
   // Open Task Notes & Evidence Modal

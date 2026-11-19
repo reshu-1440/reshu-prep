@@ -609,7 +609,124 @@ const StorageManager = {
       dayNumber,
       currentWeekNumber,
       daysRemaining,
-      revisionDueCount: this.getSpacedRevisionQueue().length
+      revisionDueCount: this.getSpacedRevisionQueue().length,
+      streakInfo: this.getStreakInfo()
+    };
+  },
+
+  // Calculate Daily Study Streak & Milestones
+  getStreakInfo() {
+    const state = this.getState();
+    const defaultRes = {
+      currentStreak: 0,
+      bestStreak: 0,
+      isMaintainedToday: false,
+      unlockedMilestone: null,
+      nextMilestone: { days: 7, name: "7-Day Consistency Club", icon: "🌱", reward: "Week 1 Foundation Unlocked" },
+      daysToNextMilestone: 7,
+      message: "Start your daily streak! Complete today's first task."
+    };
+
+    if (!state || !state.roadmap || !Array.isArray(state.roadmap)) return defaultRes;
+
+    // Collect all days across all weeks
+    const allDays = [];
+    state.roadmap.forEach(w => {
+      if (w.days && Array.isArray(w.days)) {
+        w.days.forEach(d => {
+          const hasDone = d.tasks && Array.isArray(d.tasks) && d.tasks.some(t => !!t.isCompleted);
+          allDays.push({
+            dayNumber: d.dayNumber,
+            date: d.date,
+            hasDone
+          });
+        });
+      }
+    });
+
+    if (!allDays.length) return defaultRes;
+
+    allDays.sort((a, b) => a.dayNumber - b.dayNumber);
+
+    // Get current calendar day index (clamped to 1..182)
+    const startDate = new Date(2026, 10, 17);
+    const todayStr = (state.settings && state.settings.todayDate) ? state.settings.todayDate : "2026-11-17";
+    const [tY, tM, tD] = (todayStr || "2026-11-17").split("-").map(Number);
+    const todayDateObj = new Date(tY, (tM || 1) - 1, tD || 1);
+    const diffTime = Math.max(0, todayDateObj - startDate);
+    const todayNum = Math.min(182, Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1));
+
+    // Check if today has at least 1 verified/completed task
+    const todayEntry = allDays.find(d => d.dayNumber === todayNum);
+    const isMaintainedToday = !!(todayEntry && todayEntry.hasDone);
+
+    // Calculate current streak counting backwards
+    let currentStreak = 0;
+    const startCheckDay = isMaintainedToday ? todayNum : todayNum - 1;
+
+    for (let d = startCheckDay; d >= 1; d--) {
+      const entry = allDays.find(x => x.dayNumber === d);
+      if (entry && entry.hasDone) {
+        currentStreak++;
+      } else {
+        break; // Streak interrupted
+      }
+    }
+
+    // Calculate best all-time streak
+    let bestStreak = 0;
+    let tempStreak = 0;
+    allDays.forEach(d => {
+      if (d.hasDone) {
+        tempStreak++;
+        if (tempStreak > bestStreak) bestStreak = tempStreak;
+      } else {
+        tempStreak = 0;
+      }
+    });
+    bestStreak = Math.max(bestStreak, currentStreak);
+
+    // Milestone thresholds
+    const milestones = [
+      { days: 7, name: "7-Day Consistency Club", icon: "🌱", reward: "Week 1 Foundation Unlocked" },
+      { days: 14, name: "14-Day Habit Master", icon: "⚡", reward: "Active Recall Habit Established" },
+      { days: 30, name: "30-Day Algorithm Warrior", icon: "⚔️", reward: "Month 1 DSA Mastery Reached" },
+      { days: 60, name: "60-Day Systems Architect", icon: "🏛️", reward: "Core CS & Full-Stack Pro" },
+      { days: 100, name: "100-Day SDE Contender", icon: "💎", reward: "Century Club Elite Tier" },
+      { days: 180, name: "180-Day Placement Titan", icon: "🏆", reward: "Full Internship Offer Ready" }
+    ];
+
+    let unlockedMilestone = null;
+    let nextMilestone = milestones[0];
+
+    for (const m of milestones) {
+      if (currentStreak >= m.days || bestStreak >= m.days) {
+        unlockedMilestone = m;
+      } else {
+        nextMilestone = m;
+        break;
+      }
+    }
+
+    let message = "";
+    if (isMaintainedToday) {
+      message = currentStreak > 1 
+        ? `${currentStreak}-Day Streak active! Don't break the chain!` 
+        : `Streak started! Great work today!`;
+    } else {
+      message = currentStreak > 0 
+        ? `Streak on the line! Complete 1 task today to reach ${currentStreak + 1} days!` 
+        : `Start your daily streak! Complete today's first task.`;
+    }
+
+    return {
+      currentStreak,
+      bestStreak,
+      isMaintainedToday,
+      unlockedMilestone,
+      nextMilestone,
+      message,
+      daysToNextMilestone: Math.max(1, nextMilestone.days - currentStreak)
     };
   },
 

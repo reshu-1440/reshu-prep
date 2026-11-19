@@ -738,6 +738,48 @@ body.sidebar-collapsed .view-container {
   transform: translateY(-1px);
 }
 
+/* Daily Study Streak Header Pill */
+.streak-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: rgba(249, 115, 22, 0.08);
+  color: var(--accent-warning);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-pill);
+  cursor: pointer;
+}
+
+.streak-pill-btn:hover {
+  background: rgba(249, 115, 22, 0.16);
+  border-color: var(--accent-warning);
+  transform: translateY(-1px);
+}
+
+.streak-pill-btn.inactive {
+  border-color: var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-muted);
+}
+
+.streak-flame {
+  font-size: 13px;
+  line-height: 1;
+  display: inline-block;
+  animation: flame-pulse-anim 1.8s infinite ease-in-out;
+}
+
+@keyframes flame-pulse-anim {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.18); filter: brightness(1.25); }
+}
+
 /* Supabase Cloud Sync Header Pill */
 .sync-status-btn {
   display: flex;
@@ -2129,4 +2171,60 @@ body.sidebar-collapsed .view-container {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--accent-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Streak & Momentum Modal Styles
+   -------------------------------------------------------------------------- */
+.streak-hero-card {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(234, 88, 12, 0.04));
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.streak-big-flame {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 6px;
+  display: inline-block;
+  animation: flame-pulse-anim 1.5s infinite ease-in-out;
+}
+
+.streak-hero-number {
+  font-size: 32px;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  color: var(--accent-warning);
+}
+
+.streak-trophy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.streak-trophy-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.streak-trophy-card.unlocked {
+  border-color: rgba(249, 115, 22, 0.35);
+  background: rgba(249, 115, 22, 0.06);
+}
+
+.streak-trophy-card.locked {
+  opacity: 0.55;
+  filter: grayscale(0.8);
 }
