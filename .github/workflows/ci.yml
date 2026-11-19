@@ -1,0 +1,67 @@
+name: CI Pipeline & Quality Assurance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-and-test:
+    name: Verify Code Syntax & Asset Integrity
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate JavaScript Syntax
+        run: |
+          echo "Validating JavaScript files..."
+          node -c js/supabase-config.js
+          node -c js/supabase-sync.js
+          node -c js/storage.js
+          node -c js/charts.js
+          node -c js/app.js
+          echo "All JavaScript files passed syntax verification!"
+
+      - name: Verify Static Asset & Script References
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const html = fs.readFileSync('index.html', 'utf8');
+            
+            // Check essential script tags exist in index.html
+            const requiredFiles = [
+              'js/storage.js',
+              'js/supabase-config.js',
+              'js/supabase-sync.js',
+              'js/charts.js',
+              'js/app.js'
+            ];
+
+            for (const file of requiredFiles) {
+              if (!fs.existsSync(file)) {
+                console.error('Missing required file: ' + file);
+                process.exit(1);
+              }
+              if (!html.includes(file)) {
+                console.error('File not referenced in index.html: ' + file);
+                process.exit(1);
+              }
+            }
+            console.log('Static asset verification complete: all core scripts exist and are linked in index.html.');
+          "
+
+      - name: Report CI Success
+        run: |
+          echo "=========================================================="
+          echo "✓ CI PIPELINE PASSED: Code is clean and verified."
+          echo "✓ Vercel will automatically deploy this commit to production."
+          echo "=========================================================="

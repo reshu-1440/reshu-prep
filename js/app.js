@@ -708,6 +708,43 @@ const App = {
             </div>
           </div>
 
+          <!-- Daily Execution Playbook (Step-by-Step Routine) -->
+          <details class="daily-playbook-accordion" open style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 12px;">
+            <summary style="font-weight: 700; color: var(--accent-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none;">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <span>🧭</span>
+                <span>Daily Execution Playbook: What to do step-by-step (Click to collapse)</span>
+              </span>
+              <span class="badge badge-info" style="font-size: 10px;">Recommended Routine</span>
+            </summary>
+            <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+              <div style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px;">
+                <div style="font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px;">Step 1: Spaced Recall (15m)</div>
+                <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                  Warm up your brain! Jump to <strong>Task 3</strong> and solve any problem due in your Spaced Revision Queue.
+                </p>
+              </div>
+              <div style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px;">
+                <div style="font-weight: 700; color: var(--accent-primary); margin-bottom: 4px;">Step 2: Core DSA (45-60m)</div>
+                <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                  Open <strong>Task 1</strong>. Spend 20m solving independently. If stuck, click <code>🤖 AI Tutor Prompt</code> for hints. Confirm DoD to check it off.
+                </p>
+              </div>
+              <div style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px;">
+                <div style="font-weight: 700; color: var(--accent-success); margin-bottom: 4px;">Step 3: SDE / AI Focus (45-60m)</div>
+                <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                  Go to <strong>Task 2</strong>. Click <code>🤖 AI Tutor Prompt</code>, paste into ChatGPT/Claude, learn the architecture/math, and code it in your IDE.
+                </p>
+              </div>
+              <div style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px;">
+                <div style="font-weight: 700; color: var(--accent-warning); margin-bottom: 4px;">Step 4: English Drill (20-30m)</div>
+                <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                  Go to <strong>Task 4</strong> (right sidebar). Read the prompt aloud, hit <em>Record Answer</em>, listen back for fluency, and log it!
+                </p>
+              </div>
+            </div>
+          </details>
+
           <!-- Task Cards List -->
           <div class="task-list">
             ${day && day.tasks ? day.tasks.map(t => {
