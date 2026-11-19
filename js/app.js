@@ -853,6 +853,9 @@ const App = {
               <button class="btn-sm-action" onclick="App.openTaskEditModal('${task.id}')">
                 ✏ Add Notes / Evidence
               </button>
+              <button class="btn-sm-action" onclick="App.copyAiTutorPrompt('${task.id}')" title="Copy an interactive AI Tutor prompt to paste into ChatGPT, Claude, or Gemini">
+                🤖 AI Tutor Prompt
+              </button>
               ${task.notes ? `<span style="font-size: 11px; color: var(--text-muted);">Note: "${task.notes.slice(0, 30)}..."</span>` : ''}
               ${task.confidence ? `<span class="badge badge-comm">Confidence: ${task.confidence}/5</span>` : ''}
             </div>
@@ -1014,6 +1017,40 @@ const App = {
       }
     }
     return null;
+  },
+
+  // Generate and Copy High-Caliber Socratic AI Tutor Prompt
+  copyAiTutorPrompt(taskId) {
+    const task = this.findTaskById(taskId);
+    if (!task) return;
+
+    const trackName = (task.track || 'general').toUpperCase();
+    const promptText = `Act as a Staff Software Engineer, AI Researcher, and Senior Technical Interviewer.
+I am an engineering student preparing for competitive SDE and AI/ML internship roles.
+Teach me the concept: "${task.title}".
+
+Context & Objectives:
+- Track: ${trackName}
+- Why I need this: ${task.whyLearn || 'Foundational engineering skill.'}
+- Target Objectives: ${task.taskDetails || 'Master core concept and practical implementation.'}
+- My Definition of Done: ${task.definitionOfDone || 'Can implement from first principles and defend trade-offs in an interview.'}
+
+Please teach me using the Socratic method with the following structure:
+1. First-Principles Intuition: Explain the core concept with a clear mental model or real-world analogy. Avoid superficial buzzwords.
+2. Under-the-Hood Mechanics: What happens at the CPU, memory (stack/heap), database, or mathematical level?
+3. Step-by-Step Code Walkthrough: Walk through a clean, idiomatic implementation (in C++ for DSA, Python for AI/ML, or Node/SQL for SDE).
+4. Critical Edge Cases & Common Pitfalls: Where do candidates fail or write buggy code on this topic in technical rounds?
+5. Interactive Verification Check: Give me 2 tough interview/viva questions to test if I truly mastered this. (Do NOT provide the answers yet—wait for my response!).`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(promptText).then(() => {
+        this.showToast("🤖 AI Tutor Prompt copied! Paste into ChatGPT, Claude, or Gemini.", "success");
+      }).catch(() => {
+        prompt("Copy this AI Tutor Prompt (Ctrl+C) and paste into your AI:", promptText);
+      });
+    } else {
+      prompt("Copy this AI Tutor Prompt (Ctrl+C) and paste into your AI:", promptText);
+    }
   },
 
   // Open Task Notes & Evidence Modal
