@@ -12,9 +12,11 @@ const App = {
   recordingInterval: null,
   recordSeconds: 0,
   isSimulatedRecording: false,
+  verifyingTaskId: null,
 
   init() {
     this.bindGlobalEvents();
+    this.initSidebarControls();
     this.applyTheme(StorageManager.getState().theme || "light");
 
     // Check URL hash on load for deep linking (e.g. #dsa, #today, #communication)
@@ -38,6 +40,68 @@ const App = {
         this.navigate(hash);
       }
     });
+  },
+
+  // Initialize Sidebar Controls & Mode Selection
+  initSidebarControls() {
+    const collapseBtn = document.getElementById("sidebar-collapse-btn");
+    const expandBtn = document.getElementById("sidebar-expand-btn");
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener("click", () => this.toggleSidebar(false));
+    }
+    if (expandBtn) {
+      expandBtn.addEventListener("click", () => this.toggleSidebar(true));
+    }
+
+    // Keyboard shortcut (Ctrl+B / Cmd+B) to toggle sidebar
+    document.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "b" || e.key === "B")) {
+        e.preventDefault();
+        const isCollapsed = document.body.classList.contains("sidebar-collapsed");
+        this.toggleSidebar(isCollapsed);
+      }
+    });
+
+    // Restore saved sidebar collapsed state
+    const savedCollapsed = localStorage.getItem("prep_sidebar_collapsed") === "true";
+    if (savedCollapsed) {
+      document.body.classList.add("sidebar-collapsed");
+    }
+
+    // Restore saved cadence mode (daily vs all)
+    const savedMode = localStorage.getItem("prep_sidebar_mode") || "daily";
+    this.setSidebarMode(savedMode, false);
+  },
+
+  toggleSidebar(expand) {
+    if (expand) {
+      document.body.classList.remove("sidebar-collapsed");
+      localStorage.setItem("prep_sidebar_collapsed", "false");
+    } else {
+      document.body.classList.add("sidebar-collapsed");
+      localStorage.setItem("prep_sidebar_collapsed", "true");
+    }
+  },
+
+  setSidebarMode(mode, showFeedback = true) {
+    const sidebar = document.querySelector(".app-sidebar");
+    const pillDaily = document.getElementById("mode-pill-daily");
+    const pillAll = document.getElementById("mode-pill-all");
+
+    if (mode === "daily") {
+      if (sidebar) sidebar.classList.add("daily-focus-mode");
+      if (pillDaily) pillDaily.classList.add("active");
+      if (pillAll) pillAll.classList.remove("active");
+      localStorage.setItem("prep_sidebar_mode", "daily");
+      if (showFeedback) this.showToast("⚡ Daily Focus: Displaying today's core routine.", "info");
+    } else {
+      if (sidebar) sidebar.classList.remove("daily-focus-mode");
+      if (pillDaily) pillDaily.classList.remove("active");
+      if (pillAll) pillAll.classList.add("active");
+      localStorage.setItem("prep_sidebar_mode", "all");
+      if (showFeedback) this.showToast("🌐 All Sections: Full curriculum tracks and tools unlocked.", "info");
+    }
   },
 
   // Active day number getter
@@ -798,7 +862,7 @@ const App = {
     `;
   },
 
-  // Toggle Task Completion with DoD prompt
+  // Toggle Task Completion (Opens DoD Verification Modal when completing)
   toggleTaskComplete(taskId) {
     const state = StorageManager.getState();
     let currentTask = null;
@@ -814,18 +878,142 @@ const App = {
     if (!currentTask) return;
 
     if (!currentTask.isCompleted) {
-      // Prompt student with definition of done confirmation
-      const confirmDoD = confirm(
-        `DEFINITION OF DONE CHECK:\n\n` +
-        `"${currentTask.definitionOfDone}"\n\n` +
-        `Did you independently verify this requirement without unverified AI-generated code?`
-      );
-      if (!confirmDoD) return;
+      this.openDoDVerificationModal(taskId);
+      return;
     }
 
-    const nextState = !currentTask.isCompleted;
-    StorageManager.updateTask(taskId, { isCompleted: nextState });
-    this.showToast(nextState ? "Task verified and marked complete! ✓" : "Task marked incomplete.", nextState ? "success" : "info");
+    // Already completed: confirm if student wants to uncheck
+    if (confirm(`Mark "${currentTask.title}" as incomplete?`)) {
+      StorageManager.updateTask(taskId, { isCompleted: false, completedAt: null });
+      this.showToast("Task marked incomplete.", "info");
+      this.updateHeaderBadges();
+      this.renderCurrentView();
+    }
+  },
+
+  // Open Definition of Done (DoD) Verification Modal
+  openDoDVerificationModal(taskId) {
+    const state = StorageManager.getState();
+    let task = null;
+
+    for (const w of state.roadmap) {
+      for (const d of w.days) {
+        const found = d.tasks.find(t => t.id === taskId);
+        if (found) { task = found; break; }
+      }
+      if (task) break;
+    }
+
+    if (!task) return;
+    this.verifyingTaskId = taskId;
+
+    const modal = document.getElementById("dod-verification-modal");
+    if (!modal) return;
+
+    const confirmCard = modal.querySelector(".dod-confirmation-card");
+    if (confirmCard) confirmCard.classList.remove("dod-highlight-error");
+    const chk = document.getElementById("dod-confirm-checkbox");
+    if (chk) chk.checked = false;
+
+    const titleEl = document.getElementById("dod-modal-title");
+    if (titleEl) titleEl.textContent = task.title;
+
+    const whyEl = document.getElementById("dod-modal-why");
+    if (whyEl) whyEl.textContent = task.whyLearn || "Essential for building deep, independent competence in technical rounds.";
+
+    const detailsEl = document.getElementById("dod-modal-details");
+    if (detailsEl) {
+      const rawDetails = task.taskDetails || "1. Study concept from first principles.\n2. Attempt brute-force solution.\n3. Optimize and code locally.\n4. Test edge cases.";
+      detailsEl.innerHTML = rawDetails.replace(/\n/g, "<br/>");
+    }
+
+    const dodEl = document.getElementById("dod-modal-dod");
+    if (dodEl) dodEl.textContent = task.definitionOfDone || "Code passes all edge cases without AI assistance; time & space complexity analyzed.";
+
+    const durEl = document.getElementById("dod-modal-duration");
+    if (durEl) durEl.value = task.timeSpent || task.estimatedMinutes || 60;
+
+    const confEl = document.getElementById("dod-modal-confidence");
+    if (confEl) confEl.value = String(task.confidence || "4");
+
+    const githubEl = document.getElementById("dod-modal-github");
+    if (githubEl) githubEl.value = task.githubUrl || "";
+
+    const refEl = document.getElementById("dod-modal-reflection");
+    if (refEl) refEl.value = task.notes || "";
+
+    modal.classList.add("active");
+  },
+
+  // Confirm and Mark Complete from DoD Verification Modal
+  confirmDoDVerification() {
+    if (!this.verifyingTaskId) return;
+
+    const chk = document.getElementById("dod-confirm-checkbox");
+    const modal = document.getElementById("dod-verification-modal");
+    const confirmCard = modal ? modal.querySelector(".dod-confirmation-card") : null;
+
+    if (!chk || !chk.checked) {
+      if (confirmCard) {
+        confirmCard.classList.remove("dod-highlight-error");
+        void confirmCard.offsetWidth; // trigger reflow
+        confirmCard.classList.add("dod-highlight-error");
+      }
+      this.showToast("Please independently confirm the Definition of Done before completing!", "error");
+      return;
+    }
+
+    const durInput = document.getElementById("dod-modal-duration");
+    const confInput = document.getElementById("dod-modal-confidence");
+    const ghInput = document.getElementById("dod-modal-github");
+    const refInput = document.getElementById("dod-modal-reflection");
+
+    const timeSpent = durInput ? (parseInt(durInput.value, 10) || 60) : 60;
+    const confidence = confInput ? (parseInt(confInput.value, 10) || 4) : 4;
+    const githubUrl = ghInput ? ghInput.value.trim() : "";
+    const notes = refInput ? refInput.value.trim() : "";
+
+    const taskId = this.verifyingTaskId;
+    StorageManager.updateTask(taskId, {
+      isCompleted: true,
+      timeSpent,
+      confidence,
+      githubUrl,
+      notes
+    });
+
+    // Check if this task links to a DSA problem in the state to sync spaced repetition
+    const state = StorageManager.getState();
+    if (state.dsaProblems && state.dsaProblems.length) {
+      const taskObj = this.findTaskById(taskId);
+      const cleanTaskTitle = (taskObj && taskObj.title) ? taskObj.title.toLowerCase() : "";
+      const matchedProb = state.dsaProblems.find(p => p.id === taskId || (p.name && cleanTaskTitle.includes(p.name.toLowerCase())));
+      if (matchedProb) {
+        const confLabel = confidence >= 4 ? "high" : (confidence === 3 ? "medium" : "low");
+        StorageManager.updateDsaProblem(matchedProb.id, {
+          status: "solved",
+          confidence: confLabel
+        });
+      }
+    }
+
+    this.closeAllModals();
+    this.verifyingTaskId = null;
+    this.showToast("Task verified & marked complete! Solid work! 🎉", "success");
+    this.updateHeaderBadges();
+    this.renderCurrentView();
+  },
+
+  findTaskById(taskId) {
+    const state = StorageManager.getState();
+    if (!state || !state.roadmap) return null;
+    for (const w of state.roadmap) {
+      for (const d of w.days) {
+        const found = d.tasks.find(t => t.id === taskId);
+        if (found) return found;
+      }
+    }
+    return null;
   },
 
   // Open Task Notes & Evidence Modal
@@ -2452,6 +2640,34 @@ const App = {
         </div>
 
         <div>
+          <!-- Supabase Cloud Sync Panel -->
+          <div class="card-panel" style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h2 style="font-size: 16px; font-weight: 700; color: var(--accent-success); margin: 0;">
+                Supabase Multi-Device Sync
+              </h2>
+              <span class="sync-badge-code">
+                ${typeof SupabaseSync !== 'undefined' && SupabaseSync.isConnected ? '● Connected' : '○ Local Storage'}
+              </span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+              Synchronize your preparation progress, task completions, and DSA notes across your laptop and mobile phone.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="font-size: 12px; background: var(--bg-tertiary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <strong>Active Sync ID:</strong> <code>${(typeof SupabaseSync !== 'undefined' && SupabaseSync.syncId) ? String(SupabaseSync.syncId).replace(/[&<>"']/g, '') : 'Not Configured'}</code>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button class="btn-primary" onclick="SupabaseSync.openModal()" style="font-size: 12px; justify-content: center; background: var(--accent-success); border-color: var(--accent-success);">
+                  ⚙ Configure Sync
+                </button>
+                <button class="btn-secondary" onclick="SupabaseSync.verifyConnectionAndSync(true)" style="font-size: 12px; justify-content: center;">
+                  🔄 Sync Now
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Data Backup & Portability -->
           <div class="card-panel">
             <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 10px; color: var(--accent-primary);">Data Storage & JSON Backup</h2>

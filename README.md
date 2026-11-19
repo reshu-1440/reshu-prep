@@ -168,6 +168,15 @@ d:\Room_Project\prep\
 - **Import Backup:** Restores your entire roadmap progress, notes, and CRM records from any valid JSON backup file.
 - **Factory Reset:** Safe reset requiring typing `"RESET"` in capital letters.
 
+### 13. Supabase Multi-Device Cloud Sync (Laptop & Mobile)
+- **Real-Time Cross-Device Synchronization:** Seamlessly sync progress between your Laptop and Mobile phone using a free Supabase PostgreSQL database.
+- **Offline-First:** All changes save locally in `localStorage` first, then auto-push in the background whenever an internet connection is present.
+- **Instant Setup:**
+  1. Create a free project on [Supabase.com](https://supabase.com).
+  2. Run the 1-click SQL setup script in your Supabase SQL Editor.
+  3. Enter your Project URL, Anon Key, and Personal Sync Key in the **Cloud Sync** modal (or configure `js/supabase-config.js`).
+  4. Open the deployed website on your mobile phone, enter your Sync Key, and all your progress instantly loads!
+
 ---
 
 ## 📈 Preparation Allocation Breakdown

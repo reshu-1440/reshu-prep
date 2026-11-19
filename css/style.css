@@ -254,6 +254,123 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
+}
+
+.sidebar-collapse-btn {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--bg-card);
+  color: var(--accent-primary);
+  border-color: var(--border-medium);
+  transform: translateX(-1px);
+}
+
+.sidebar-expand-btn {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-right: 6px;
+  padding: 0;
+}
+
+.sidebar-expand-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  transform: translateX(1px);
+}
+
+/* Sidebar Cadence Mode Selector */
+.sidebar-mode-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  margin-top: 14px;
+  border: 1px solid var(--border-subtle);
+  gap: 3px;
+}
+
+.mode-pill {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mode-pill:hover {
+  color: var(--text-primary);
+}
+
+.mode-pill.active {
+  background: var(--bg-card);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Daily Focus Mode filtering */
+.app-sidebar.daily-focus-mode .nav-group-weekly,
+.app-sidebar.daily-focus-mode .nav-group-curriculum,
+.app-sidebar.daily-focus-mode .nav-group-career {
+  display: none !important;
+}
+
+/* Collapsed Sidebar State */
+body.sidebar-collapsed .app-sidebar {
+  transform: translateX(-100%);
+}
+
+body.sidebar-collapsed .app-main {
+  margin-left: 0 !important;
+}
+
+body.sidebar-collapsed .sidebar-expand-btn {
+  display: inline-flex !important;
+}
+
+body.sidebar-collapsed .app-header {
+  padding: 0 44px;
+}
+
+body.sidebar-collapsed .exam-banner-alert {
+  padding: 10px 44px;
+}
+
+body.sidebar-collapsed .view-container {
+  max-width: 1680px;
+  padding: 32px 44px;
 }
 
 /* Isometric 3D Hex-Cube Icon Box */
@@ -427,6 +544,7 @@ input, select, textarea {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-app);
+  transition: margin-left var(--transition-smooth);
 }
 
 /* --------------------------------------------------------------------------
@@ -445,6 +563,7 @@ input, select, textarea {
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
+  transition: padding var(--transition-smooth);
 }
 
 .header-left {
@@ -619,6 +738,75 @@ input, select, textarea {
   transform: translateY(-1px);
 }
 
+/* Supabase Cloud Sync Header Pill */
+.sync-status-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-pill);
+  cursor: pointer;
+}
+
+.sync-status-btn:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.sync-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.sync-status-btn.connected {
+  border-color: rgba(16, 185, 129, 0.35);
+  background-color: var(--accent-success-subtle);
+  color: var(--accent-success);
+}
+
+.sync-status-btn.connected .sync-status-dot {
+  background-color: var(--accent-success);
+  box-shadow: 0 0 6px var(--accent-success);
+}
+
+.sync-status-btn.syncing {
+  border-color: rgba(6, 182, 212, 0.35);
+  color: var(--accent-cyan);
+}
+
+.sync-status-btn.syncing .sync-status-dot {
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
+  animation: pulse-sync-anim 0.8s infinite alternate;
+}
+
+.sync-status-btn.error {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: var(--accent-danger);
+}
+
+.sync-status-btn.error .sync-status-dot {
+  background-color: var(--accent-danger);
+  box-shadow: 0 0 6px var(--accent-danger);
+}
+
+@keyframes pulse-sync-anim {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.3); }
+}
+
 /* Quick Progress Header Pill */
 .header-progress-box {
   display: flex;
@@ -679,10 +867,14 @@ input, select, textarea {
    View Container & Headings
    -------------------------------------------------------------------------- */
 .view-container {
-  padding: 28px;
+  padding: 28px 32px;
   flex: 1;
-  max-width: 1440px;
+  max-width: 1560px;
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  transition: max-width var(--transition-smooth), padding var(--transition-smooth);
 }
 
 .view-header {
@@ -1775,6 +1967,97 @@ input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
+   Definition of Done (DoD) Verification Modal Styles
+   -------------------------------------------------------------------------- */
+.dod-header-pill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.dod-context-box {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.dod-criterion-banner {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  margin-top: 8px;
+}
+
+.dod-criterion-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-success);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dod-criterion-text {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.dod-confirmation-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 15px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dod-confirmation-card:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+}
+
+.dod-confirmation-card.dod-highlight-error {
+  border-color: var(--accent-danger) !important;
+  background: rgba(239, 68, 68, 0.05);
+  animation: pulseShake 0.4s ease;
+}
+
+@keyframes pulseShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.dod-checkbox-input {
+  width: 19px;
+  height: 19px;
+  margin-top: 2px;
+  accent-color: var(--accent-success);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dod-confirmation-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+/* --------------------------------------------------------------------------
    Responsive Media Queries
    -------------------------------------------------------------------------- */
 @media (max-width: 900px) {
@@ -1802,4 +2085,47 @@ input, select, textarea {
   .view-container {
     padding: 18px 16px;
   }
+}
+
+/* --------------------------------------------------------------------------
+   Supabase Cloud Sync Modal & UI Enhancements
+   -------------------------------------------------------------------------- */
+.sync-banner-connected {
+  background-color: var(--accent-success-subtle);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--text-primary);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+}
+
+.sync-banner-disconnected {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+}
+
+.sync-sql-box {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  position: relative;
+  overflow-x: auto;
+  user-select: all;
+  white-space: pre;
+}
+
+.sync-badge-code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-primary);
 }
